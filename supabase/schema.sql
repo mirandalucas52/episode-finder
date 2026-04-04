@@ -1,35 +1,33 @@
--- Activer l'extension pgvector
-create extension if not exists vector with schema extensions;
-
 -- Supprimer l'ancienne table si elle existe
 drop table if exists search_cache;
 
--- Table de cache sémantique avec embeddings vectoriels
+-- Table de cache pour les recherches
 create table search_cache (
   id bigint generated always as identity primary key,
   original_query text not null,
-  normalized_query text not null,
-  embedding vector(768) not null,
+  normalized_query text not null unique,
   result jsonb not null,
   tmdb_data jsonb,
   hit_count integer not null default 1,
   created_at timestamptz not null default now()
 );
 
--- Index pour recherche vectorielle (cosine similarity)
-create index idx_search_cache_embedding
-  on search_cache
-  using ivfflat (embedding vector_cosine_ops)
-  with (lists = 100);
-
--- Index texte comme fallback
+-- Index pour recherche rapide
 create index idx_search_cache_normalized_query
   on search_cache (normalized_query);
 
--- Fonction de recherche sémantique
-create or replace function match_search_cache(
-  query_embedding vector(768),
-  match_threshold float default 0.90,
+-- Extension pour la recherche floue
+create extension if not exists pg_trgm;
+
+-- Index trigram pour la similarité textuelle
+create index idx_search_cache_trgm
+  on search_cache
+  using gin (normalized_query gin_trgm_ops);
+
+-- Fonction de recherche par similarité textuelle (seuil 0.45)
+create or replace function match_similar_query(
+  search_query text,
+  match_threshold float default 0.45,
   match_count int default 1
 )
 returns table (
@@ -48,24 +46,14 @@ as $$
     sc.normalized_query,
     sc.result,
     sc.tmdb_data,
-    1 - (sc.embedding <=> query_embedding) as similarity
+    similarity(sc.normalized_query, search_query)::float as similarity
   from search_cache sc
-  where 1 - (sc.embedding <=> query_embedding) > match_threshold
-  order by sc.embedding <=> query_embedding
+  where similarity(sc.normalized_query, search_query) > match_threshold
+  order by similarity(sc.normalized_query, search_query) desc
   limit match_count;
 $$;
 
--- Fonction pour incrémenter le compteur de hits
-create or replace function increment_hit_count(query_text text)
-returns void as $$
-begin
-  update search_cache
-  set hit_count = hit_count + 1
-  where normalized_query = query_text;
-end;
-$$ language plpgsql;
-
--- Fonction pour incrémenter par ID
+-- Fonction pour incrémenter le compteur de hits par ID
 create or replace function increment_hit_count_by_id(row_id bigint)
 returns void as $$
 begin

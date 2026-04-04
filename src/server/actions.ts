@@ -2,7 +2,6 @@
 
 import { supabase } from "@/lib/supabase";
 import { geminiModel } from "@/lib/gemini";
-import { generateEmbedding } from "@/lib/embeddings";
 import { fetchTmdbData } from "@/lib/tmdb";
 import type { EpisodeResult, TmdbData, SearchResponse } from "@/types";
 
@@ -10,23 +9,37 @@ const normalizeQuery = (query: string): string => {
   return query.trim().toLowerCase().replace(/\s+/g, " ");
 };
 
-const searchSemanticCache = async (
-  embedding: number[]
+const searchCache = async (
+  normalizedQuery: string
 ): Promise<{ result: EpisodeResult; tmdb: TmdbData | null; id: number } | null> => {
   try {
-    const { data, error } = await supabase.rpc("match_search_cache", {
-      query_embedding: JSON.stringify(embedding),
-      match_threshold: 0.9,
+    // Exact match first
+    const { data: exact } = await supabase
+      .from("search_cache")
+      .select("id, result, tmdb_data")
+      .eq("normalized_query", normalizedQuery)
+      .maybeSingle();
+
+    if (exact?.result) {
+      supabase.rpc("increment_hit_count_by_id", { row_id: exact.id }).then(() => {});
+      return {
+        result: exact.result as EpisodeResult,
+        tmdb: (exact.tmdb_data as TmdbData) || null,
+        id: exact.id,
+      };
+    }
+
+    // Fuzzy match via trigram similarity
+    const { data: fuzzy, error } = await supabase.rpc("match_similar_query", {
+      search_query: normalizedQuery,
+      match_threshold: 0.45,
       match_count: 1,
     });
 
-    if (error || !data || data.length === 0) return null;
+    if (error || !fuzzy || fuzzy.length === 0) return null;
 
-    const match = data[0];
-
-    supabase
-      .rpc("increment_hit_count_by_id", { row_id: match.id })
-      .then(() => {});
+    const match = fuzzy[0];
+    supabase.rpc("increment_hit_count_by_id", { row_id: match.id }).then(() => {});
 
     return {
       result: match.result as EpisodeResult,
@@ -41,19 +54,20 @@ const searchSemanticCache = async (
 const saveToCache = async (
   originalQuery: string,
   normalizedQuery: string,
-  embedding: number[],
   result: EpisodeResult,
   tmdbData: TmdbData | null
 ): Promise<void> => {
   try {
-    await supabase.from("search_cache").insert({
-      original_query: originalQuery.trim(),
-      normalized_query: normalizedQuery,
-      embedding: JSON.stringify(embedding),
-      result,
-      tmdb_data: tmdbData,
-      created_at: new Date().toISOString(),
-    });
+    await supabase.from("search_cache").upsert(
+      {
+        original_query: originalQuery.trim(),
+        normalized_query: normalizedQuery,
+        result,
+        tmdb_data: tmdbData,
+        created_at: new Date().toISOString(),
+      },
+      { onConflict: "normalized_query" }
+    );
   } catch {
     console.error("Failed to save to cache");
   }
@@ -100,9 +114,7 @@ export const searchEpisode = async (query: string): Promise<SearchResponse> => {
   const normalizedQuery = normalizeQuery(query);
 
   try {
-    const embedding = await generateEmbedding(normalizedQuery);
-
-    const cached = await searchSemanticCache(embedding);
+    const cached = await searchCache(normalizedQuery);
     if (cached) {
       return {
         result: cached.result,
@@ -122,7 +134,7 @@ export const searchEpisode = async (query: string): Promise<SearchResponse> => {
       );
     }
 
-    await saveToCache(query, normalizedQuery, embedding, result, tmdbData);
+    await saveToCache(query, normalizedQuery, result, tmdbData);
 
     return { result, tmdb: tmdbData, fromCache: false };
   } catch (error) {
