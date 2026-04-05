@@ -12,9 +12,9 @@ export const LOCALE_LABELS: Record<Locale, string> = {
 const translations: Record<Locale, Record<string, string>> = {
   fr: {
     "site.title": "Retrouve mon épisode",
-    "site.subtitle": "Décrivez une scène de mémoire. On retrouve le film, la série ou l'épisode exact pour vous.",
-    "site.heading1": "Toute scène.",
-    "site.heading2": "Retrouvée.",
+    "site.subtitle": "Une scène, un personnage, une intrigue floue — on retrouve le film, la série ou l'épisode exact.",
+    "site.heading1": "Décrivez.",
+    "site.heading2": "Découvrez.",
 
     "search.placeholder": "Décrivez la scène dont vous vous souvenez...",
     "search.charsRemaining": "caractères restants",
@@ -151,9 +151,9 @@ const translations: Record<Locale, Record<string, string>> = {
 
   en: {
     "site.title": "Find My Episode",
-    "site.subtitle": "Describe a scene from memory. We'll find the exact movie, series, or episode for you.",
-    "site.heading1": "Any scene.",
-    "site.heading2": "Found.",
+    "site.subtitle": "A scene, a character, a fuzzy plot — we'll find the exact movie, series, or episode.",
+    "site.heading1": "Describe.",
+    "site.heading2": "Discover.",
 
     "search.placeholder": "Describe the scene you remember...",
     "search.charsRemaining": "characters remaining",
@@ -290,9 +290,9 @@ const translations: Record<Locale, Record<string, string>> = {
 
   es: {
     "site.title": "Encuentra mi episodio",
-    "site.subtitle": "Describe una escena de memoria. Encontramos la película, serie o episodio exacto para ti.",
-    "site.heading1": "Cualquier escena.",
-    "site.heading2": "Encontrada.",
+    "site.subtitle": "Una escena, un personaje, una trama difusa — encontramos la película, serie o episodio exacto.",
+    "site.heading1": "Describe.",
+    "site.heading2": "Descubre.",
 
     "search.placeholder": "Describe la escena que recuerdas...",
     "search.charsRemaining": "caracteres restantes",
@@ -429,9 +429,9 @@ const translations: Record<Locale, Record<string, string>> = {
 
   pt: {
     "site.title": "Encontre meu episódio",
-    "site.subtitle": "Descreva uma cena de memória. Encontramos o filme, a série ou o episódio exato para você.",
-    "site.heading1": "Qualquer cena.",
-    "site.heading2": "Encontrada.",
+    "site.subtitle": "Uma cena, uma personagem, um enredo vago — encontramos o filme, a série ou o episódio exato.",
+    "site.heading1": "Descreva.",
+    "site.heading2": "Descubra.",
 
     "search.placeholder": "Descreva a cena que você lembra...",
     "search.charsRemaining": "caracteres restantes",
