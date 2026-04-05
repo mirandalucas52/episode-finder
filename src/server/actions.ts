@@ -102,7 +102,9 @@ const LANG_NAMES: Record<string, string> = {
 
 const getLangInstruction = (locale: string): string => {
   const lang = LANG_NAMES[locale] || "ENGLISH";
-  return `CRITICAL LANGUAGE RULE: You MUST write ALL text values in ${lang}. This includes the synopsis, explanation, status, and episodeTitle. Do NOT use any other language. The JSON keys stay in English, but every text value must be in ${lang}. Translate proper nouns (movie/series titles) to their official ${lang} version if one exists, otherwise keep the original.`;
+  return `CRITICAL LANGUAGE RULE: You MUST write ALL text values in ${lang}. This includes the synopsis, explanation, status, and episodeTitle. Do NOT use any other language. The JSON keys stay in English, but every text value must be in ${lang}.
+
+TITLES RULE: ALWAYS keep movie and TV series titles in their ORIGINAL form as they are officially known (usually in English). Do NOT translate, invent, or guess translated titles. For example: "Prison Break" stays "Prison Break", "Breaking Bad" stays "Breaking Bad", "Game of Thrones" stays "Game of Thrones". Only use a translated title if it is the officially released name in that country's market and you are 100% certain.`;
 };
 
 const buildPrompt = (mode: SearchMode, locale: string): string => {
