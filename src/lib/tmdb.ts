@@ -69,6 +69,35 @@ const getEpisodeStill = async (
     : null;
 };
 
+type TmdbVideo = {
+  key: string;
+  site: string;
+  type: string;
+  official: boolean;
+};
+
+const getTrailerKey = async (
+  id: number,
+  mediaType: string
+): Promise<string | null> => {
+  const res = await fetch(
+    `${TMDB_BASE}/${mediaType}/${id}/videos?language=en-US`,
+    { headers }
+  );
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const videos: TmdbVideo[] = data.results || [];
+
+  // Prefer official trailer, then any trailer, then teaser
+  const trailer =
+    videos.find((v) => v.site === "YouTube" && v.type === "Trailer" && v.official) ||
+    videos.find((v) => v.site === "YouTube" && v.type === "Trailer") ||
+    videos.find((v) => v.site === "YouTube" && v.type === "Teaser");
+
+  return trailer?.key || null;
+};
+
 const getWatchProviders = async (
   id: number,
   mediaType: string
@@ -113,7 +142,7 @@ export const fetchTmdbData = async (
     const searchResult = await searchTitle(title, isMovie);
 
     if (!searchResult) {
-      return { posterUrl: null, stillUrl: null, watchProviders: [] };
+      return { posterUrl: null, stillUrl: null, trailerKey: null, watchProviders: [] };
     }
 
     const posterUrl = searchResult.poster_path
@@ -132,10 +161,10 @@ export const fetchTmdbData = async (
       }
     }
 
-    const watchData = await getWatchProviders(
-      searchResult.id,
-      searchResult.media_type
-    );
+    const [watchData, trailerKey] = await Promise.all([
+      getWatchProviders(searchResult.id, searchResult.media_type),
+      getTrailerKey(searchResult.id, searchResult.media_type),
+    ]);
 
     type ProviderType = "flatrate" | "rent" | "buy";
 
@@ -152,9 +181,9 @@ export const fetchTmdbData = async (
           }));
         });
 
-    return { posterUrl, stillUrl, watchProviders };
+    return { posterUrl, stillUrl, trailerKey, watchProviders };
   } catch (error) {
     console.error("TMDB error:", error);
-    return { posterUrl: null, stillUrl: null, watchProviders: [] };
+    return { posterUrl: null, stillUrl: null, trailerKey: null, watchProviders: [] };
   }
 };

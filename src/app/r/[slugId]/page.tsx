@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { parseIdFromSlug, buildResultSlug } from "@/lib/slug";
+import TrailerEmbed from "@/components/TrailerEmbed";
 import type { SearchResult, TmdbData } from "@/types";
 
 type PageProps = {
@@ -183,6 +184,10 @@ const ResultPage = async ({ params }: PageProps) => {
                         {result.explanation}
                       </p>
                     </div>
+
+                    {tmdb?.trailerKey && (
+                      <TrailerEmbed youtubeKey={tmdb.trailerKey} title={result.title} />
+                    )}
                   </div>
                 </div>
               </div>

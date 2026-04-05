@@ -10,6 +10,7 @@ import WatchProviders from "@/components/WatchProviders";
 import ShareButton from "@/components/ShareButton";
 import FeedbackButtons from "@/components/FeedbackButtons";
 import DidYouMean from "@/components/DidYouMean";
+import TrailerEmbed from "@/components/TrailerEmbed";
 
 type ResultCardProps = {
   result: SearchResult;
@@ -185,6 +186,10 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId }: ResultCardProps
                     </p>
                   </div>
                 </motion.div>
+
+                {tmdb?.trailerKey && (
+                  <TrailerEmbed youtubeKey={tmdb.trailerKey} title={result.title} />
+                )}
 
                 {result.alternatives && result.alternatives.length > 0 && (
                   <DidYouMean alternatives={result.alternatives} />

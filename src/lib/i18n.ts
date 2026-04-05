@@ -82,6 +82,8 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "rateLimit.title": "Ralentissez un instant",
     "rateLimit.message": "Trop de recherches en peu de temps. Réessayez dans une minute.",
+
+    "trailer.title": "Bande-annonce",
   },
 
   en: {
@@ -156,6 +158,8 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "rateLimit.title": "Slow down a moment",
     "rateLimit.message": "Too many searches in a short time. Try again in a minute.",
+
+    "trailer.title": "Trailer",
   },
 
   es: {
@@ -230,6 +234,8 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "rateLimit.title": "Más despacio un momento",
     "rateLimit.message": "Demasiadas búsquedas en poco tiempo. Inténtalo de nuevo en un minuto.",
+
+    "trailer.title": "Tráiler",
   },
 
   pt: {
@@ -304,6 +310,8 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "rateLimit.title": "Devagar um momento",
     "rateLimit.message": "Demasiadas pesquisas em pouco tempo. Tente novamente em um minuto.",
+
+    "trailer.title": "Trailer",
   },
 };
 
