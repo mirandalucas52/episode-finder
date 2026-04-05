@@ -16,7 +16,7 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 import QuotaExceededView from "@/components/QuotaExceededView";
 import Footer from "@/components/Footer";
 import { searchEpisode } from "@/server/actions";
-import type { SearchResult, SearchMode, TmdbData, QuotaError } from "@/types";
+import type { SearchResult, SearchMode, TmdbData, QuotaError, RateLimitError } from "@/types";
 
 const Home = () => {
   const { t, locale } = useI18n();
@@ -27,6 +27,8 @@ const Home = () => {
   const [fromCache, setFromCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [quotaError, setQuotaError] = useState<QuotaError | null>(null);
+  const [rateLimitError, setRateLimitError] = useState<RateLimitError | null>(null);
+  const [cacheId, setCacheId] = useState<number | undefined>(undefined);
   const [lastQuery, setLastQuery] = useState("");
   const [searchBarQuery, setSearchBarQuery] = useState<string | undefined>(undefined);
   const [historyKey, setHistoryKey] = useState(0);
@@ -51,6 +53,8 @@ const Home = () => {
       setTmdb(null);
       setError(null);
       setQuotaError(null);
+      setRateLimitError(null);
+      setCacheId(undefined);
       setLastQuery(query);
       lastQueryRef.current = query;
 
@@ -58,12 +62,15 @@ const Home = () => {
 
       if (response.quotaError) {
         setQuotaError(response.quotaError);
+      } else if (response.rateLimitError) {
+        setRateLimitError(response.rateLimitError);
       } else if (response.error) {
         setError(response.error);
       } else {
         setResult(response.result);
         setTmdb(response.tmdb);
         setFromCache(response.fromCache);
+        setCacheId(response.cacheId);
 
         if (response.result?.found) {
           addToHistory({
@@ -192,6 +199,19 @@ const Home = () => {
               />
             )}
 
+            {rateLimitError && !isLoading && (
+              <motion.div
+                key="rateLimit"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="w-full max-w-2xl mx-auto rounded-2xl bg-white border border-stone/60 p-8 text-center"
+              >
+                <p className="font-serif text-xl text-ink mb-2">{t("rateLimit.title")}</p>
+                <p className="text-sm text-ink-muted">{t("rateLimit.message")}</p>
+              </motion.div>
+            )}
+
             {result && !isLoading && (
               <ResultCard
                 key="result"
@@ -199,6 +219,7 @@ const Home = () => {
                 tmdb={tmdb}
                 fromCache={fromCache}
                 query={lastQuery}
+                cacheId={cacheId}
               />
             )}
           </AnimatePresence>

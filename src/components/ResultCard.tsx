@@ -7,12 +7,15 @@ import type { SearchResult, TmdbData } from "@/types";
 import SpoilerReveal from "@/components/SpoilerReveal";
 import WatchProviders from "@/components/WatchProviders";
 import ShareButton from "@/components/ShareButton";
+import FeedbackButtons from "@/components/FeedbackButtons";
+import DidYouMean from "@/components/DidYouMean";
 
 type ResultCardProps = {
   result: SearchResult;
   tmdb: TmdbData | null;
   fromCache: boolean;
   query: string;
+  cacheId?: number;
 };
 
 const EpisodeBadge = ({ season, episode }: { season: number; episode: number }) => (
@@ -28,7 +31,7 @@ const EpisodeBadge = ({ season, episode }: { season: number; episode: number }) 
   </motion.div>
 );
 
-const ResultCard = ({ result, tmdb, fromCache, query }: ResultCardProps) => {
+const ResultCard = ({ result, tmdb, fromCache, query, cacheId }: ResultCardProps) => {
   const { t } = useI18n();
 
   const confidenceLabels = {
@@ -182,6 +185,10 @@ const ResultCard = ({ result, tmdb, fromCache, query }: ResultCardProps) => {
                   </div>
                 </motion.div>
 
+                {result.alternatives && result.alternatives.length > 0 && (
+                  <DidYouMean alternatives={result.alternatives} />
+                )}
+
                 {tmdb && tmdb.watchProviders.length > 0 && (
                   <WatchProviders providers={tmdb.watchProviders} />
                 )}
@@ -190,9 +197,10 @@ const ResultCard = ({ result, tmdb, fromCache, query }: ResultCardProps) => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="mt-6 pt-4 border-t border-stone/40 flex items-center justify-between"
+                  className="mt-6 pt-4 border-t border-stone/40 flex items-center justify-between flex-wrap gap-3"
                 >
                   <ShareButton query={query} title={result.title} />
+                  {cacheId && <FeedbackButtons cacheId={cacheId} query={query} />}
                   {fromCache && (
                     <p className="text-[11px] text-ink-subtle tracking-wide">
                       {t("result.cached")}

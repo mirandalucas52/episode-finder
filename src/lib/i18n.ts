@@ -74,6 +74,14 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.clear": "Effacer",
 
     "suggestions.title": "Ou essayez un exemple",
+
+    "feedback.ask": "Ce résultat est-il correct ?",
+    "feedback.thanks": "Merci pour votre retour !",
+
+    "result.didYouMean": "Autres possibilités",
+
+    "rateLimit.title": "Ralentissez un instant",
+    "rateLimit.message": "Trop de recherches en peu de temps. Réessayez dans une minute.",
   },
 
   en: {
@@ -140,6 +148,14 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.clear": "Clear",
 
     "suggestions.title": "Or try an example",
+
+    "feedback.ask": "Is this result correct?",
+    "feedback.thanks": "Thanks for your feedback!",
+
+    "result.didYouMean": "Other possibilities",
+
+    "rateLimit.title": "Slow down a moment",
+    "rateLimit.message": "Too many searches in a short time. Try again in a minute.",
   },
 
   es: {
@@ -206,6 +222,14 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.clear": "Borrar",
 
     "suggestions.title": "O prueba un ejemplo",
+
+    "feedback.ask": "¿Es correcto este resultado?",
+    "feedback.thanks": "¡Gracias por tu opinión!",
+
+    "result.didYouMean": "Otras posibilidades",
+
+    "rateLimit.title": "Más despacio un momento",
+    "rateLimit.message": "Demasiadas búsquedas en poco tiempo. Inténtalo de nuevo en un minuto.",
   },
 
   pt: {
@@ -272,6 +296,14 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.clear": "Limpar",
 
     "suggestions.title": "Ou experimente um exemplo",
+
+    "feedback.ask": "Este resultado está correto?",
+    "feedback.thanks": "Obrigado pelo seu feedback!",
+
+    "result.didYouMean": "Outras possibilidades",
+
+    "rateLimit.title": "Devagar um momento",
+    "rateLimit.message": "Demasiadas pesquisas em pouco tempo. Tente novamente em um minuto.",
   },
 };
 

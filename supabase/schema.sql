@@ -69,3 +69,41 @@ $$ language plpgsql;
 
 -- Row Level Security
 alter table search_cache enable row level security;
+
+-- ═══════════════════════════════════════════════════
+-- Rate limiting table (sliding window per IP)
+-- ═══════════════════════════════════════════════════
+create table if not exists rate_limits (
+  id bigint generated always as identity primary key,
+  ip_hash text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_rate_limits_ip_time
+  on rate_limits (ip_hash, created_at desc);
+
+-- Cleanup function (removes entries older than 1 hour)
+create or replace function cleanup_rate_limits()
+returns void as $$
+begin
+  delete from rate_limits where created_at < now() - interval '1 hour';
+end;
+$$ language plpgsql;
+
+alter table rate_limits enable row level security;
+
+-- ═══════════════════════════════════════════════════
+-- Feedback table (thumbs up/down on results)
+-- ═══════════════════════════════════════════════════
+create table if not exists result_feedback (
+  id bigint generated always as identity primary key,
+  cache_id bigint references search_cache(id) on delete cascade,
+  query text not null,
+  vote smallint not null check (vote in (-1, 1)),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_feedback_cache_id
+  on result_feedback (cache_id);
+
+alter table result_feedback enable row level security;

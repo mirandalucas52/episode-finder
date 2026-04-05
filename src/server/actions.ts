@@ -1,9 +1,18 @@
 "use server";
 
+import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import { geminiModel } from "@/lib/gemini";
 import { fetchTmdbData } from "@/lib/tmdb";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { SearchResult, SearchMode, TmdbData, SearchResponse } from "@/types";
+
+const getClientIp = async (): Promise<string> => {
+  const h = await headers();
+  const forwarded = h.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  return h.get("x-real-ip") || "unknown";
+};
 
 const normalizeQuery = (query: string): string => {
   return query.trim().toLowerCase().replace(/\s+/g, " ");
@@ -31,26 +40,7 @@ const searchCache = async (
       };
     }
 
-    // 2. Exact match cross-mode (same query, different mode but compatible result)
-    const { data: crossMode } = await supabase
-      .from("search_cache")
-      .select("id, result, tmdb_data, search_mode")
-      .eq("normalized_query", normalizedQuery)
-      .maybeSingle();
-
-    if (crossMode?.result) {
-      const cached = crossMode.result as SearchResult;
-      if (cached.resultType === mode) {
-        supabase.rpc("increment_hit_count_by_id", { row_id: crossMode.id }).then(() => {});
-        return {
-          result: cached,
-          tmdb: (crossMode.tmdb_data as TmdbData) || null,
-          id: crossMode.id,
-        };
-      }
-    }
-
-    // 3. Fuzzy match (similar query, same mode, lower threshold for more hits)
+    // 2. Fuzzy match (similar query, same mode, lower threshold for more hits)
     const { data: fuzzy, error } = await supabase.rpc("match_similar_query", {
       search_query: normalizedQuery,
       query_mode: mode,
@@ -79,21 +69,27 @@ const saveToCache = async (
   mode: SearchMode,
   result: SearchResult,
   tmdbData: TmdbData | null
-): Promise<void> => {
+): Promise<number | null> => {
   try {
-    await supabase.from("search_cache").upsert(
-      {
-        original_query: originalQuery.trim(),
-        normalized_query: normalizedQuery,
-        search_mode: mode,
-        result,
-        tmdb_data: tmdbData,
-        created_at: new Date().toISOString(),
-      },
-      { onConflict: "normalized_query,search_mode" }
-    );
+    const { data } = await supabase
+      .from("search_cache")
+      .upsert(
+        {
+          original_query: originalQuery.trim(),
+          normalized_query: normalizedQuery,
+          search_mode: mode,
+          result,
+          tmdb_data: tmdbData,
+          created_at: new Date().toISOString(),
+        },
+        { onConflict: "normalized_query,search_mode" }
+      )
+      .select("id")
+      .single();
+    return data?.id || null;
   } catch {
     console.error("Failed to save to cache");
+    return null;
   }
 };
 
@@ -130,10 +126,12 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "status": null,
   "synopsis": "Movie summary (2-3 sentences)",
   "confidence": "high" or "medium" or "low",
-  "explanation": "Why this movie matches the description (2-3 sentences)"
+  "explanation": "Why this movie matches the description (2-3 sentences)",
+  "alternatives": [{"title": "Other possible movie", "reason": "Brief why"}]
 }
 
-Search ONLY movies, never TV series. If not found, set "found" to false.`;
+Search ONLY movies, never TV series. If not found, set "found" to false.
+If your confidence is medium or low, include 2-3 alternative movies in "alternatives". If confidence is high, use an empty array [].`;
   }
 
   if (mode === "series") {
@@ -154,10 +152,12 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "status": "Ongoing" or "Ended" (in the target language),
   "synopsis": "Global overview of the series (2-3 sentences, not a specific episode)",
   "confidence": "high" or "medium" or "low",
-  "explanation": "Why this series matches the description (2-3 sentences)"
+  "explanation": "Why this series matches the description (2-3 sentences)",
+  "alternatives": [{"title": "Other possible series", "reason": "Brief why"}]
 }
 
-NEVER give a season or episode number. Describe the series as a whole. If not found, set "found" to false.`;
+NEVER give a season or episode number. Describe the series as a whole. If not found, set "found" to false.
+If your confidence is medium or low, include 2-3 alternative series in "alternatives". If confidence is high, use an empty array [].`;
   }
 
   return `You are a TV and movie expert. The user describes a specific scene. You must identify the EXACT EPISODE.
@@ -177,10 +177,12 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "status": null,
   "synopsis": "Summary of this specific episode (2-3 sentences)",
   "confidence": "high" or "medium" or "low",
-  "explanation": "Why this episode matches the described scene (2-3 sentences)"
+  "explanation": "Why this episode matches the described scene (2-3 sentences)",
+  "alternatives": [{"title": "Other possible episode (Series SxEy)", "reason": "Brief why"}]
 }
 
-You MUST provide seasonNumber and episodeNumber if found. If the description is too vague to identify a specific episode, set "found" to false and explain that more details are needed (names, dialogue, location...).`;
+You MUST provide seasonNumber and episodeNumber if found. If the description is too vague, set "found" to false.
+If your confidence is medium or low, include 2-3 alternative episodes in "alternatives". If confidence is high, use an empty array [].`;
 };
 
 const callGemini = async (
@@ -223,6 +225,19 @@ export const searchEpisode = async (
         result: cached.result,
         tmdb: cached.tmdb,
         fromCache: true,
+        cacheId: cached.id,
+      };
+    }
+
+    // Rate limit only on fresh AI calls (not cache hits)
+    const ip = await getClientIp();
+    const { allowed } = await checkRateLimit(ip);
+    if (!allowed) {
+      return {
+        result: null,
+        tmdb: null,
+        fromCache: false,
+        rateLimitError: { type: "rateLimit" },
       };
     }
 
@@ -237,9 +252,9 @@ export const searchEpisode = async (
       );
     }
 
-    await saveToCache(query, normalizedQuery, mode, result, tmdbData);
+    const cacheId = await saveToCache(query, normalizedQuery, mode, result, tmdbData);
 
-    return { result, tmdb: tmdbData, fromCache: false };
+    return { result, tmdb: tmdbData, fromCache: false, cacheId: cacheId || undefined };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Search error:", message);
@@ -260,5 +275,22 @@ export const searchEpisode = async (
       fromCache: false,
       error: "Une erreur est survenue. Réessayez dans un instant.",
     };
+  }
+};
+
+export const submitFeedback = async (
+  cacheId: number,
+  query: string,
+  vote: 1 | -1
+): Promise<{ success: boolean }> => {
+  try {
+    await supabase.from("result_feedback").insert({
+      cache_id: cacheId,
+      query: query.trim(),
+      vote,
+    });
+    return { success: true };
+  } catch {
+    return { success: false };
   }
 };

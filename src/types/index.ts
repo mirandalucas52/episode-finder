@@ -1,5 +1,10 @@
 export type SearchMode = "film" | "series" | "episode";
 
+export type Alternative = {
+  title: string;
+  reason: string;
+};
+
 export type SearchResult = {
   found: boolean;
   resultType: SearchMode;
@@ -13,6 +18,7 @@ export type SearchResult = {
   synopsis: string;
   confidence: "high" | "medium" | "low";
   explanation: string;
+  alternatives?: Alternative[];
 };
 
 export type TmdbData = {
@@ -32,10 +38,16 @@ export type QuotaError = {
   type: "quota";
 };
 
+export type RateLimitError = {
+  type: "rateLimit";
+};
+
 export type SearchResponse = {
   result: SearchResult | null;
   tmdb: TmdbData | null;
   fromCache: boolean;
+  cacheId?: number;
   error?: string;
   quotaError?: QuotaError;
+  rateLimitError?: RateLimitError;
 };
