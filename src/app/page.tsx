@@ -11,6 +11,7 @@ import SearchModeSelector from "@/components/SearchModeSelector";
 import SearchBar from "@/components/SearchBar";
 import SearchHistory from "@/components/SearchHistory";
 import QuickSuggestions from "@/components/QuickSuggestions";
+import HomeSeoContent from "@/components/HomeSeoContent";
 import ResultCard from "@/components/ResultCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import QuotaExceededView from "@/components/QuotaExceededView";
@@ -225,6 +226,8 @@ const Home = () => {
           </AnimatePresence>
         </div>
       </main>
+
+      <HomeSeoContent />
 
       <Footer />
     </div>

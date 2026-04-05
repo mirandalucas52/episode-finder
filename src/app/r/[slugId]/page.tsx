@@ -5,6 +5,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { parseIdFromSlug, buildResultSlug } from "@/lib/slug";
 import TrailerEmbed from "@/components/TrailerEmbed";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import RelatedResults from "@/components/RelatedResults";
 import type { SearchResult, TmdbData } from "@/types";
 
 type PageProps = {
@@ -108,16 +110,13 @@ const ResultPage = async ({ params }: PageProps) => {
       <div className="flex flex-col flex-1 items-center">
         <main className="flex flex-col items-center w-full flex-1 px-5 md:px-8 pt-20 md:pt-28 pb-16">
           <div className="w-full max-w-2xl">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-xs text-ink-muted hover:text-ink mb-8 transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-              </svg>
-              Back to search
-            </Link>
+            <Breadcrumbs
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Trending", href: "/trending" },
+                { label: result.title },
+              ]}
+            />
 
             <article className="rounded-2xl bg-white border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)]">
               {tmdb?.stillUrl && isEpisode && (
@@ -193,7 +192,9 @@ const ResultPage = async ({ params }: PageProps) => {
               </div>
             </article>
 
-            <div className="mt-8 text-center">
+            <RelatedResults currentId={row.id} mode={row.search_mode} />
+
+            <div className="mt-10 text-center">
               <Link
                 href="/"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-ink text-cream text-sm font-medium hover:bg-ink-light transition-colors"
