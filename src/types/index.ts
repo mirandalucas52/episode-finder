@@ -25,6 +25,7 @@ export type TmdbData = {
   posterUrl: string | null;
   stillUrl: string | null;
   trailerKey: string | null;
+  trailerKeys?: string[];
   watchProviders: WatchProvider[];
 };
 

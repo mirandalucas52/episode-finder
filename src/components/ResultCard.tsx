@@ -188,7 +188,11 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId }: ResultCardProps
                 </motion.div>
 
                 {tmdb?.trailerKey && (
-                  <TrailerEmbed youtubeKey={tmdb.trailerKey} title={result.title} />
+                  <TrailerEmbed
+                    youtubeKey={tmdb.trailerKey}
+                    youtubeKeys={tmdb.trailerKeys}
+                    title={result.title}
+                  />
                 )}
 
                 {result.alternatives && result.alternatives.length > 0 && (

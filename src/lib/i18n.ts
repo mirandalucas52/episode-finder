@@ -85,6 +85,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "rateLimit.message": "Trop de recherches en peu de temps. Réessayez dans une minute.",
 
     "trailer.title": "Bande-annonce",
+    "trailer.tryAnother": "Essayer une autre version",
+    "trailer.watchOnYoutube": "Voir sur YouTube",
 
     "nav.home": "Accueil",
     "nav.trending": "Tendances",
@@ -225,6 +227,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "rateLimit.message": "Too many searches in a short time. Try again in a minute.",
 
     "trailer.title": "Trailer",
+    "trailer.tryAnother": "Try another version",
+    "trailer.watchOnYoutube": "Watch on YouTube",
 
     "nav.home": "Home",
     "nav.trending": "Trending",
@@ -365,6 +369,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "rateLimit.message": "Demasiadas búsquedas en poco tiempo. Inténtalo de nuevo en un minuto.",
 
     "trailer.title": "Tráiler",
+    "trailer.tryAnother": "Probar otra versión",
+    "trailer.watchOnYoutube": "Ver en YouTube",
 
     "nav.home": "Inicio",
     "nav.trending": "Tendencias",
@@ -505,6 +511,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "rateLimit.message": "Demasiadas pesquisas em pouco tempo. Tente novamente em um minuto.",
 
     "trailer.title": "Trailer",
+    "trailer.tryAnother": "Tentar outra versão",
+    "trailer.watchOnYoutube": "Ver no YouTube",
 
     "nav.home": "Início",
     "nav.trending": "Tendências",

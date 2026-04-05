@@ -187,7 +187,11 @@ const ResultPage = async ({ params }: PageProps) => {
                     </div>
 
                     {tmdb?.trailerKey && (
-                      <TrailerEmbed youtubeKey={tmdb.trailerKey} title={result.title} />
+                      <TrailerEmbed
+                        youtubeKey={tmdb.trailerKey}
+                        youtubeKeys={tmdb.trailerKeys}
+                        title={result.title}
+                      />
                     )}
                   </div>
                 </div>

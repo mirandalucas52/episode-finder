@@ -76,26 +76,42 @@ type TmdbVideo = {
   official: boolean;
 };
 
-const getTrailerKey = async (
+const getTrailerKeys = async (
   id: number,
   mediaType: string
-): Promise<string | null> => {
+): Promise<string[]> => {
+  // Fetch videos with include_video_language to get results in multiple languages
+  // This maximizes the chance of finding a trailer available in the user's region
   const res = await fetch(
-    `${TMDB_BASE}/${mediaType}/${id}/videos?language=en-US`,
+    `${TMDB_BASE}/${mediaType}/${id}/videos?include_video_language=en,fr,es,pt,null`,
     { headers }
   );
-  if (!res.ok) return null;
+  if (!res.ok) return [];
 
   const data = await res.json();
   const videos: TmdbVideo[] = data.results || [];
 
-  // Prefer official trailer, then any trailer, then teaser
-  const trailer =
-    videos.find((v) => v.site === "YouTube" && v.type === "Trailer" && v.official) ||
-    videos.find((v) => v.site === "YouTube" && v.type === "Trailer") ||
-    videos.find((v) => v.site === "YouTube" && v.type === "Teaser");
+  const youtube = videos.filter((v) => v.site === "YouTube");
 
-  return trailer?.key || null;
+  // Order: official trailers > any trailers > teasers
+  const ordered = [
+    ...youtube.filter((v) => v.type === "Trailer" && v.official),
+    ...youtube.filter((v) => v.type === "Trailer" && !v.official),
+    ...youtube.filter((v) => v.type === "Teaser"),
+  ];
+
+  // Deduplicate by key, keep top 5 fallbacks
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const v of ordered) {
+    if (!seen.has(v.key)) {
+      seen.add(v.key);
+      result.push(v.key);
+      if (result.length >= 5) break;
+    }
+  }
+
+  return result;
 };
 
 const getWatchProviders = async (
@@ -163,9 +179,9 @@ export const fetchTmdbData = async (
       }
     }
 
-    const [watchData, trailerKey] = await Promise.all([
+    const [watchData, trailerKeys] = await Promise.all([
       getWatchProviders(searchResult.id, searchResult.media_type),
-      getTrailerKey(searchResult.id, searchResult.media_type),
+      getTrailerKeys(searchResult.id, searchResult.media_type),
     ]);
 
     type ProviderType = "flatrate" | "rent" | "buy";
@@ -183,9 +199,21 @@ export const fetchTmdbData = async (
           }));
         });
 
-    return { posterUrl, stillUrl, trailerKey, watchProviders };
+    return {
+      posterUrl,
+      stillUrl,
+      trailerKey: trailerKeys[0] || null,
+      trailerKeys,
+      watchProviders,
+    };
   } catch (error) {
     console.error("TMDB error:", error);
-    return { posterUrl: null, stillUrl: null, trailerKey: null, watchProviders: [] };
+    return {
+      posterUrl: null,
+      stillUrl: null,
+      trailerKey: null,
+      trailerKeys: [],
+      watchProviders: [],
+    };
   }
 };
