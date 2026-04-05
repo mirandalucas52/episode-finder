@@ -13,23 +13,23 @@ type Suggestion = {
 const SUGGESTIONS: Record<Locale, Suggestion[]> = {
   fr: [
     { query: "Un homme mange du chocolat sur un banc et raconte sa vie", mode: "film" },
-    { query: "Un chimiste atteint d'un cancer fabrique de la drogue", mode: "series" },
-    { query: "Un mariage qui tourne mal dans un château", mode: "episode" },
+    { query: "Un prof de chimie atteint d'un cancer fabrique de la meth", mode: "series" },
+    { query: "Un homme avec tout le corps tatoué braque une banque pour se faire envoyer en prison", mode: "episode" },
   ],
   en: [
     { query: "A man eats chocolates on a bench and tells his life story", mode: "film" },
-    { query: "A chemistry teacher with cancer makes drugs", mode: "series" },
-    { query: "A wedding that turns into a massacre in a castle", mode: "episode" },
+    { query: "A chemistry teacher with cancer starts making meth", mode: "series" },
+    { query: "A man with his whole body tattooed robs a bank to get sent to prison", mode: "episode" },
   ],
   es: [
     { query: "Un hombre come chocolate en un banco y cuenta su vida", mode: "film" },
-    { query: "Un profesor de química con cáncer fabrica drogas", mode: "series" },
-    { query: "Una boda que acaba en masacre en un castillo", mode: "episode" },
+    { query: "Un profesor de química con cáncer empieza a fabricar metanfetamina", mode: "series" },
+    { query: "Un hombre con todo el cuerpo tatuado asalta un banco para que lo envíen a prisión", mode: "episode" },
   ],
   pt: [
     { query: "Um homem come chocolate num banco e conta a sua vida", mode: "film" },
-    { query: "Um professor de química com cancro fabrica drogas", mode: "series" },
-    { query: "Um casamento que acaba em massacre num castelo", mode: "episode" },
+    { query: "Um professor de química com cancro começa a fabricar metanfetamina", mode: "series" },
+    { query: "Um homem com o corpo todo tatuado assalta um banco para ser enviado para a prisão", mode: "episode" },
   ],
 };
 
