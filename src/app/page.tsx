@@ -14,6 +14,7 @@ import SearchHistory from "@/components/SearchHistory";
 import QuickSuggestions from "@/components/QuickSuggestions";
 import HomeSeoContent from "@/components/HomeSeoContent";
 import TopNav from "@/components/TopNav";
+import SocialProof from "@/components/SocialProof";
 import ResultCard from "@/components/ResultCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import QuotaExceededView from "@/components/QuotaExceededView";
@@ -165,6 +166,7 @@ const Home = () => {
           >
             {t("site.subtitle")}
           </motion.p>
+          <SocialProof />
         </motion.header>
 
         <div className="mb-6">
