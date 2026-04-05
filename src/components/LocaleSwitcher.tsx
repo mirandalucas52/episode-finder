@@ -9,7 +9,7 @@ const FLAGS: Record<Locale, string> = {
   fr: "🇫🇷",
   en: "🇬🇧",
   es: "🇪🇸",
-  pt: "🇧🇷",
+  pt: "🇵🇹",
 };
 
 const LocaleSwitcher = () => {
