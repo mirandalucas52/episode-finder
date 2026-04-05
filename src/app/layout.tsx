@@ -22,24 +22,28 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://episode-finder.ver
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Find My Episode — Describe a scene, find your episode",
+    default: "Find My Episode — Describe a scene, find the movie, series or episode",
     template: "%s · Find My Episode",
   },
   description:
-    "Describe a scene from a TV show or movie and find the exact episode in seconds.",
+    "Describe a scene from memory and find the exact movie, TV series, or episode in seconds.",
   keywords: [
-    "find episode",
-    "what episode",
+    "find movie from scene",
+    "find episode from scene",
+    "what movie is this",
+    "what episode is this",
     "tv show finder",
     "movie finder",
     "scene search",
     "episode search",
+    "identify movie",
+    "identify series",
   ],
   alternates: { canonical: "/" },
   openGraph: {
     title: "Find My Episode",
     description:
-      "Describe a scene from a TV show or movie and find the exact episode.",
+      "Describe a scene from memory and find the exact movie, TV series, or episode.",
     url: "/",
     siteName: "Find My Episode",
     type: "website",
@@ -47,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Find My Episode",
-    description: "Describe a scene, find your episode",
+    description: "Describe a scene, find the movie, series or episode",
   },
   robots: {
     index: true,
@@ -66,7 +70,7 @@ const websiteJsonLd = {
   "@type": "WebSite",
   name: "Find My Episode",
   url: SITE_URL,
-  description: "Describe a scene from a TV show or movie and find the exact episode in seconds.",
+  description: "Describe a scene from memory and find the exact movie, TV series, or episode in seconds.",
   inLanguage: ["en", "fr", "es", "pt"],
   potentialAction: {
     "@type": "SearchAction",

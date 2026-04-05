@@ -126,7 +126,7 @@ export const GET = async (
               letterSpacing: 2,
             }}
           >
-            Describe a scene · Find the exact episode
+            Describe a scene · Find the movie, series or episode
           </div>
         </div>
 

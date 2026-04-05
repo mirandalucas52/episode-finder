@@ -12,7 +12,7 @@ export const LOCALE_LABELS: Record<Locale, string> = {
 const translations: Record<Locale, Record<string, string>> = {
   fr: {
     "site.title": "Retrouve mon épisode",
-    "site.subtitle": "Décrivez une scène de mémoire. On retrouve l'épisode exact pour vous.",
+    "site.subtitle": "Décrivez une scène de mémoire. On retrouve le film, la série ou l'épisode exact pour vous.",
     "site.heading1": "Retrouve mon",
     "site.heading2": "épisode",
 
@@ -151,7 +151,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
   en: {
     "site.title": "Find My Episode",
-    "site.subtitle": "Describe a scene from memory. We'll find the exact episode for you.",
+    "site.subtitle": "Describe a scene from memory. We'll find the exact movie, series, or episode for you.",
     "site.heading1": "Find my",
     "site.heading2": "episode",
 
@@ -290,7 +290,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
   es: {
     "site.title": "Encuentra mi episodio",
-    "site.subtitle": "Describe una escena de memoria. Encontramos el episodio exacto para ti.",
+    "site.subtitle": "Describe una escena de memoria. Encontramos la película, serie o episodio exacto para ti.",
     "site.heading1": "Encuentra mi",
     "site.heading2": "episodio",
 
@@ -429,7 +429,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
   pt: {
     "site.title": "Encontre meu episódio",
-    "site.subtitle": "Descreva uma cena de memória. Encontramos o episódio exato para você.",
+    "site.subtitle": "Descreva uma cena de memória. Encontramos o filme, a série ou o episódio exato para você.",
     "site.heading1": "Encontre meu",
     "site.heading2": "episódio",
 
