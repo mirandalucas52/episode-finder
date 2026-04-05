@@ -7,6 +7,7 @@ import { parseIdFromSlug, buildResultSlug } from "@/lib/slug";
 import TrailerEmbed from "@/components/TrailerEmbed";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import RelatedResults from "@/components/RelatedResults";
+import { getServerT } from "@/lib/i18n-server";
 import type { SearchResult, TmdbData } from "@/types";
 
 type PageProps = {
@@ -82,6 +83,7 @@ const ResultPage = async ({ params }: PageProps) => {
   const row = await fetchResultById(id);
   if (!row || !row.result.found) notFound();
 
+  const { t } = await getServerT();
   const { result, tmdb_data: tmdb } = row;
   const isEpisode = result.resultType === "episode";
   const isFilm = result.resultType === "film";
@@ -112,8 +114,8 @@ const ResultPage = async ({ params }: PageProps) => {
           <div className="w-full max-w-2xl">
             <Breadcrumbs
               items={[
-                { label: "Home", href: "/" },
-                { label: "Trending", href: "/trending" },
+                { label: t("nav.home"), href: "/" },
+                { label: t("nav.trending"), href: "/trending" },
                 { label: result.title },
               ]}
             />
@@ -152,8 +154,8 @@ const ResultPage = async ({ params }: PageProps) => {
                   </h1>
 
                   <p className="mt-2 text-ink-muted text-sm tracking-wide">
-                    {isFilm && result.year && `Movie · ${result.year}`}
-                    {result.resultType === "series" && result.year && `Series · ${result.year}`}
+                    {isFilm && result.year && `${t("result.film")} · ${result.year}`}
+                    {result.resultType === "series" && result.year && `${t("result.series")} · ${result.year}`}
                     {isEpisode && result.episodeTitle}
                   </p>
 
@@ -168,7 +170,7 @@ const ResultPage = async ({ params }: PageProps) => {
                   <div className="mt-6 space-y-4">
                     <div>
                       <h2 className="text-xs font-medium text-ink-subtle uppercase tracking-widest mb-2">
-                        Synopsis
+                        {t("resultPage.synopsis")}
                       </h2>
                       <p className="text-ink-light text-sm leading-relaxed">
                         {result.synopsis}
@@ -177,7 +179,7 @@ const ResultPage = async ({ params }: PageProps) => {
 
                     <div className="pt-4 border-t border-stone/40">
                       <h2 className="text-xs font-medium text-ink-subtle uppercase tracking-widest mb-2">
-                        Why this result
+                        {t("resultPage.whyThis")}
                       </h2>
                       <p className="text-ink-light text-sm leading-relaxed">
                         {result.explanation}
@@ -199,7 +201,7 @@ const ResultPage = async ({ params }: PageProps) => {
                 href="/"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-ink text-cream text-sm font-medium hover:bg-ink-light transition-colors"
               >
-                Search another scene
+                {t("resultPage.searchAnother")}
               </Link>
             </div>
           </div>

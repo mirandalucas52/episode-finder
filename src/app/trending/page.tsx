@@ -3,18 +3,37 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { buildResultSlug } from "@/lib/slug";
+import { getServerT } from "@/lib/i18n-server";
 import type { SearchResult, TmdbData } from "@/types";
 
-export const metadata: Metadata = {
-  title: "Trending Searches — Find My Episode",
-  description:
-    "Discover the most popular TV episodes, movies, and scenes being identified by our community. Browse trending results from real user searches.",
-  alternates: { canonical: "/trending" },
-  openGraph: {
+const metaByLocale: Record<string, { title: string; description: string }> = {
+  en: {
     title: "Trending Searches — Find My Episode",
-    description: "Discover the most popular TV episodes and movies being identified right now.",
-    url: "/trending",
+    description: "Discover the most popular TV episodes, movies, and scenes being identified by our community.",
   },
+  fr: {
+    title: "Recherches tendances — Retrouve mon épisode",
+    description: "Découvrez les épisodes, films et scènes les plus identifiés par notre communauté.",
+  },
+  es: {
+    title: "Búsquedas tendencia — Encuentra mi episodio",
+    description: "Descubre los episodios, películas y escenas más identificados por nuestra comunidad.",
+  },
+  pt: {
+    title: "Pesquisas em tendência — Encontre meu episódio",
+    description: "Descubra os episódios, filmes e cenas mais identificados pela nossa comunidade.",
+  },
+};
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const { locale } = await getServerT();
+  const meta = metaByLocale[locale] || metaByLocale.en;
+  return {
+    title: meta.title,
+    description: meta.description,
+    alternates: { canonical: "/trending" },
+    openGraph: { title: meta.title, description: meta.description, url: "/trending" },
+  };
 };
 
 type TrendingRow = {
@@ -28,6 +47,8 @@ type TrendingRow = {
 export const revalidate = 3600;
 
 const TrendingPage = async () => {
+  const { t } = await getServerT();
+
   const { data: allTime } = await supabase
     .from("search_cache")
     .select("id, result, tmdb_data, hit_count, created_at")
@@ -50,9 +71,9 @@ const TrendingPage = async () => {
       r.resultType === "episode" && r.seasonNumber && r.episodeNumber
         ? `S${String(r.seasonNumber).padStart(2, "0")}E${String(r.episodeNumber).padStart(2, "0")}`
         : r.resultType === "film" && r.year
-          ? `Movie · ${r.year}`
+          ? `${t("result.film")} · ${r.year}`
           : r.resultType === "series" && r.year
-            ? `Series · ${r.year}`
+            ? `${t("result.series")} · ${r.year}`
             : "";
 
     return (
@@ -82,12 +103,10 @@ const TrendingPage = async () => {
             <h3 className="font-serif text-sm text-ink leading-tight line-clamp-2 group-hover:text-accent transition-colors">
               {r.title}
             </h3>
-            {subtitle && (
-              <p className="text-[11px] text-ink-subtle mt-1 tracking-wide">{subtitle}</p>
-            )}
+            {subtitle && <p className="text-[11px] text-ink-subtle mt-1 tracking-wide">{subtitle}</p>}
           </div>
           <p className="text-[10px] text-ink-subtle/70 uppercase tracking-widest">
-            {row.hit_count} {row.hit_count > 1 ? "searches" : "search"}
+            {row.hit_count} {row.hit_count > 1 ? t("trending.searches") : t("trending.search")}
           </p>
         </div>
       </Link>
@@ -105,22 +124,20 @@ const TrendingPage = async () => {
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
-          Back to search
+          {t("nav.backToSearch")}
         </Link>
 
         <header className="text-center mb-12">
           <h1 className="font-serif text-4xl md:text-5xl text-ink tracking-tight leading-[1.1]">
-            Trending <span className="text-accent">searches</span>
+            {t("trending.title1")} <span className="text-accent">{t("trending.title2")}</span>
           </h1>
-          <p className="mt-4 text-ink-muted text-base max-w-xl mx-auto">
-            The most popular TV episodes, movies, and scenes being identified right now by our community.
-          </p>
+          <p className="mt-4 text-ink-muted text-base max-w-xl mx-auto">{t("trending.subtitle")}</p>
         </header>
 
         {recent && recent.length > 0 && (
           <section className="mb-12">
             <h2 className="text-xs font-medium text-ink-subtle uppercase tracking-widest mb-4">
-              Popular this week
+              {t("trending.thisWeek")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {(recent as TrendingRow[]).map(renderCard)}
@@ -130,7 +147,7 @@ const TrendingPage = async () => {
 
         <section>
           <h2 className="text-xs font-medium text-ink-subtle uppercase tracking-widest mb-4">
-            All-time favorites
+            {t("trending.allTime")}
           </h2>
           {allTime && allTime.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -138,9 +155,9 @@ const TrendingPage = async () => {
             </div>
           ) : (
             <p className="text-sm text-ink-subtle text-center py-12">
-              No searches yet. Be the first to{" "}
+              {t("trending.empty")}{" "}
               <Link href="/" className="text-accent underline underline-offset-4">
-                find an episode
+                {t("trending.emptyCta")}
               </Link>
               .
             </p>

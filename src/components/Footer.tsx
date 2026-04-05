@@ -11,38 +11,40 @@ const Footer = () => {
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="font-serif text-base text-ink mb-3">Find My Episode</h3>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Describe any scene and find the exact TV episode or movie it comes from.
-            </p>
+            <h3 className="font-serif text-base text-ink mb-3">{t("share.nativeTitle")}</h3>
+            <p className="text-xs text-ink-muted leading-relaxed">{t("footer.description")}</p>
           </div>
           <div>
-            <h3 className="text-[11px] text-ink-subtle uppercase tracking-widest mb-3">Explore</h3>
+            <h3 className="text-[11px] text-ink-subtle uppercase tracking-widest mb-3">
+              {t("footer.explore")}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-xs text-ink-muted hover:text-accent transition-colors">
-                  Search
+                  {t("nav.home")}
                 </Link>
               </li>
               <li>
                 <Link href="/trending" className="text-xs text-ink-muted hover:text-accent transition-colors">
-                  Trending
+                  {t("nav.trending")}
                 </Link>
               </li>
               <li>
                 <Link href="/how-it-works" className="text-xs text-ink-muted hover:text-accent transition-colors">
-                  How it works
+                  {t("nav.howItWorks")}
                 </Link>
               </li>
               <li>
                 <Link href="/faq" className="text-xs text-ink-muted hover:text-accent transition-colors">
-                  FAQ
+                  {t("nav.faq")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-[11px] text-ink-subtle uppercase tracking-widest mb-3">Languages</h3>
+            <h3 className="text-[11px] text-ink-subtle uppercase tracking-widest mb-3">
+              {t("footer.languages")}
+            </h3>
             <ul className="space-y-2 text-xs text-ink-muted">
               <li>🇬🇧 English</li>
               <li>🇫🇷 Français</li>
@@ -54,7 +56,7 @@ const Footer = () => {
         <div className="pt-6 border-t border-stone/30 flex items-center justify-between flex-wrap gap-3">
           <p className="text-[11px] text-ink-subtle/60 tracking-wide">{t("footer.madeIn")}</p>
           <p className="text-[11px] text-ink-subtle/60">
-            © {new Date().getFullYear()} Find My Episode
+            © {new Date().getFullYear()} {t("share.nativeTitle")}
           </p>
         </div>
       </div>

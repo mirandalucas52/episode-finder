@@ -19,12 +19,16 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
   const [locale, setLocaleState] = useState<Locale>("fr");
 
   useEffect(() => {
-    setLocaleState(detectLocale());
+    const l = detectLocale();
+    setLocaleState(l);
+    document.cookie = `locale=${l}; path=/; max-age=31536000; SameSite=Lax`;
+    document.documentElement.lang = l;
   }, []);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     localStorage.setItem("locale", l);
+    document.cookie = `locale=${l}; path=/; max-age=31536000; SameSite=Lax`;
     document.documentElement.lang = l;
   }, []);
 

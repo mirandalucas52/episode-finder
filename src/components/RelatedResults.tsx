@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { buildResultSlug } from "@/lib/slug";
+import { getServerT } from "@/lib/i18n-server";
 import type { SearchResult, TmdbData } from "@/types";
 
 type RelatedResultsProps = {
@@ -16,6 +17,8 @@ type RelatedRow = {
 };
 
 const RelatedResults = async ({ currentId, mode }: RelatedResultsProps) => {
+  const { t } = await getServerT();
+
   const { data } = await supabase
     .from("search_cache")
     .select("id, result, tmdb_data")
@@ -31,7 +34,7 @@ const RelatedResults = async ({ currentId, mode }: RelatedResultsProps) => {
   return (
     <section className="mt-12">
       <h2 className="text-xs font-medium text-ink-subtle uppercase tracking-widest mb-4">
-        You might also like
+        {t("related.title")}
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {rows.map((row) => {
