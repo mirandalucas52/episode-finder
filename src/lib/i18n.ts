@@ -74,6 +74,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.clear": "Effacer",
 
     "suggestions.title": "Ou essayez un exemple",
+    "scroll.hint": "Défiler pour découvrir",
 
     "feedback.ask": "Ce résultat est-il correct ?",
     "feedback.thanks": "Merci pour votre retour !",
@@ -213,6 +214,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.clear": "Clear",
 
     "suggestions.title": "Or try an example",
+    "scroll.hint": "Scroll to explore",
 
     "feedback.ask": "Is this result correct?",
     "feedback.thanks": "Thanks for your feedback!",
@@ -352,6 +354,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.clear": "Borrar",
 
     "suggestions.title": "O prueba un ejemplo",
+    "scroll.hint": "Desplázate para explorar",
 
     "feedback.ask": "¿Es correcto este resultado?",
     "feedback.thanks": "¡Gracias por tu opinión!",
@@ -491,6 +494,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.clear": "Limpar",
 
     "suggestions.title": "Ou experimente um exemplo",
+    "scroll.hint": "Role para explorar",
 
     "feedback.ask": "Este resultado está correto?",
     "feedback.thanks": "Obrigado pelo seu feedback!",

@@ -251,27 +251,33 @@ const Home = () => {
         </div>
 
         {!result && !isLoading && !error && !quotaError && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="mt-auto mb-8 flex flex-col items-center gap-2 text-ink-subtle"
+            onClick={() => {
+              window.scrollTo({
+                top: window.innerHeight - 80,
+                behavior: "smooth",
+              });
+            }}
+            className="group mt-auto mb-10 flex flex-col items-center gap-2.5 text-ink-subtle hover:text-ink-muted transition-colors"
           >
-            <motion.svg
-              animate={{ y: [0, 4, 0] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <span className="text-[10px] uppercase tracking-[0.25em] font-medium">
+              {t("scroll.hint")}
+            </span>
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+              className="w-5 h-8 rounded-full border border-current flex items-start justify-center p-1"
             >
-              <polyline points="6 9 12 15 18 9" />
-            </motion.svg>
-          </motion.div>
+              <motion.div
+                animate={{ y: [0, 8, 0], opacity: [1, 0, 1] }}
+                transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                className="w-0.5 h-1.5 bg-current rounded-full"
+              />
+            </motion.div>
+          </motion.button>
         )}
       </main>
 
