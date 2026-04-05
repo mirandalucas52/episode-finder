@@ -15,7 +15,7 @@ import { searchEpisode } from "@/server/actions";
 import type { SearchResult, SearchMode, TmdbData, QuotaError } from "@/types";
 
 const Home = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [mode, setMode] = useState<SearchMode>("film");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -38,7 +38,7 @@ const Home = () => {
       lastQueryRef.current = query;
       lastModeRef.current = mode;
 
-      const response = await searchEpisode(query, mode);
+      const response = await searchEpisode(query, mode, locale);
 
       if (response.quotaError) {
         setQuotaError(response.quotaError);
@@ -52,7 +52,7 @@ const Home = () => {
 
       setIsLoading(false);
     },
-    [mode]
+    [mode, locale]
   );
 
   const handleRetry = useCallback(() => {

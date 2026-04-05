@@ -97,12 +97,25 @@ const saveToCache = async (
   }
 };
 
-const LANG_INSTRUCTION = `IMPORTANT: Detect the language of the user's query and respond in THAT SAME LANGUAGE. If the user writes in English, respond in English. If in French, respond in French. If in Portuguese, respond in Portuguese. Etc. The JSON keys must stay in English, but all text values (title, synopsis, explanation, status) must be in the user's language.`;
+const LANG_NAMES: Record<string, string> = {
+  fr: "FRENCH (français)",
+  en: "ENGLISH",
+  es: "SPANISH (español)",
+  pt: "PORTUGUESE (português)",
+};
 
-const PROMPTS: Record<SearchMode, string> = {
-  film: `You are a cinema expert. The user describes a scene from a MOVIE. You must identify the exact movie.
+const getLangInstruction = (locale: string): string => {
+  const lang = LANG_NAMES[locale] || "ENGLISH";
+  return `CRITICAL LANGUAGE RULE: You MUST write ALL text values in ${lang}. This includes the synopsis, explanation, status, and episodeTitle. Do NOT use any other language. The JSON keys stay in English, but every text value must be in ${lang}. Translate proper nouns (movie/series titles) to their official ${lang} version if one exists, otherwise keep the original.`;
+};
 
-${LANG_INSTRUCTION}
+const buildPrompt = (mode: SearchMode, locale: string): string => {
+  const langInstruction = getLangInstruction(locale);
+
+  if (mode === "film") {
+    return `You are a cinema expert. The user describes a scene from a MOVIE. You must identify the exact movie.
+
+${langInstruction}
 
 Respond ONLY with a valid JSON object, no markdown, no backticks:
 {
@@ -120,11 +133,13 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "explanation": "Why this movie matches the description (2-3 sentences)"
 }
 
-Search ONLY movies, never TV series. If not found, set "found" to false.`,
+Search ONLY movies, never TV series. If not found, set "found" to false.`;
+  }
 
-  series: `You are a TV series expert. The user is looking for a TV SERIES as a whole (not a specific episode). Describe the work globally.
+  if (mode === "series") {
+    return `You are a TV series expert. The user is looking for a TV SERIES as a whole (not a specific episode). Describe the work globally.
 
-${LANG_INSTRUCTION}
+${langInstruction}
 
 Respond ONLY with a valid JSON object, no markdown, no backticks:
 {
@@ -136,17 +151,18 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "episodeNumber": null,
   "episodeTitle": null,
   "totalSeasons": total number of seasons (integer),
-  "status": "Ongoing" or "Ended" (in the user's language),
+  "status": "Ongoing" or "Ended" (in the target language),
   "synopsis": "Global overview of the series (2-3 sentences, not a specific episode)",
   "confidence": "high" or "medium" or "low",
   "explanation": "Why this series matches the description (2-3 sentences)"
 }
 
-NEVER give a season or episode number. Describe the series as a whole. If not found, set "found" to false.`,
+NEVER give a season or episode number. Describe the series as a whole. If not found, set "found" to false.`;
+  }
 
-  episode: `You are a TV and movie expert. The user describes a specific scene. You must identify the EXACT EPISODE.
+  return `You are a TV and movie expert. The user describes a specific scene. You must identify the EXACT EPISODE.
 
-${LANG_INSTRUCTION}
+${langInstruction}
 
 Respond ONLY with a valid JSON object, no markdown, no backticks:
 {
@@ -164,16 +180,17 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "explanation": "Why this episode matches the described scene (2-3 sentences)"
 }
 
-You MUST provide seasonNumber and episodeNumber if found. If the description is too vague to identify a specific episode, set "found" to false and explain that more details are needed (names, dialogue, location...).`,
+You MUST provide seasonNumber and episodeNumber if found. If the description is too vague to identify a specific episode, set "found" to false and explain that more details are needed (names, dialogue, location...).`;
 };
 
 const callGemini = async (
   query: string,
-  mode: SearchMode
+  mode: SearchMode,
+  locale: string
 ): Promise<SearchResult> => {
   const result = await geminiModel.generateContent([
-    { text: PROMPTS[mode] },
-    { text: `Description de l'utilisateur : "${query}"` },
+    { text: buildPrompt(mode, locale) },
+    { text: `User query: "${query}"` },
   ]);
 
   const text = result.response.text();
@@ -184,7 +201,8 @@ const callGemini = async (
 
 export const searchEpisode = async (
   query: string,
-  mode: SearchMode = "episode"
+  mode: SearchMode = "episode",
+  locale: string = "fr"
 ): Promise<SearchResponse> => {
   if (!query.trim() || query.trim().length < 10) {
     return {
@@ -195,7 +213,8 @@ export const searchEpisode = async (
     };
   }
 
-  const normalizedQuery = normalizeQuery(query);
+  // Locale is part of the cache key to avoid cross-language pollution
+  const normalizedQuery = `${locale}::${normalizeQuery(query)}`;
 
   try {
     const cached = await searchCache(normalizedQuery, mode);
@@ -207,7 +226,7 @@ export const searchEpisode = async (
       };
     }
 
-    const result = await callGemini(query.trim(), mode);
+    const result = await callGemini(query.trim(), mode, locale);
 
     let tmdbData: TmdbData | null = null;
     if (result.found) {
