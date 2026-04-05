@@ -1,19 +1,30 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/lib/i18n-context";
 
 type SearchBarProps = {
   onSearch: (query: string) => void;
   isLoading: boolean;
+  initialQuery?: string;
 };
 
-const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
+const SearchBar = ({ onSearch, isLoading, initialQuery }: SearchBarProps) => {
   const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (initialQuery !== undefined) {
+      setQuery(initialQuery);
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+        textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+      }
+    }
+  }, [initialQuery]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

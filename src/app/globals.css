@@ -1,29 +1,70 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-cream: #FAF8F5;
-  --color-cream-dark: #F3F0EB;
-  --color-stone: #E8E4DE;
-  --color-stone-dark: #D4CFC7;
-  --color-ink: #1A1917;
-  --color-ink-light: #3D3B37;
-  --color-ink-muted: #6B6860;
-  --color-ink-subtle: #9C9890;
-  --color-accent: #8B7355;
-  --color-accent-light: #A6906F;
-  --color-accent-dark: #6F5C44;
+  --color-cream: var(--cream);
+  --color-cream-dark: var(--cream-dark);
+  --color-stone: var(--stone);
+  --color-stone-dark: var(--stone-dark);
+  --color-ink: var(--ink);
+  --color-ink-light: var(--ink-light);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-dark: var(--accent-dark);
   --font-serif: var(--font-playfair);
   --font-sans: var(--font-inter);
 }
 
+:root {
+  --cream: #FAF8F5;
+  --cream-dark: #F3F0EB;
+  --stone: #E8E4DE;
+  --stone-dark: #D4CFC7;
+  --ink: #1A1917;
+  --ink-light: #3D3B37;
+  --ink-muted: #6B6860;
+  --ink-subtle: #9C9890;
+  --accent: #8B7355;
+  --accent-light: #A6906F;
+  --accent-dark: #6F5C44;
+}
+
+.dark {
+  --cream: #0F0E0C;
+  --cream-dark: #18161300;
+  --stone: #2A2724;
+  --stone-dark: #3A3632;
+  --ink: #F5F2ED;
+  --ink-light: #D4CFC7;
+  --ink-muted: #9C9890;
+  --ink-subtle: #6B6860;
+  --accent: #C9A678;
+  --accent-light: #D9BE8C;
+  --accent-dark: #A6906F;
+}
+
+.dark .bg-white {
+  background-color: #1A1815;
+}
+
+.dark .bg-cream-dark\/50 {
+  background-color: rgba(42, 39, 36, 0.5);
+}
+
+.dark .bg-cream-dark {
+  background-color: #252320;
+}
+
 body {
-  background: var(--color-cream);
-  color: var(--color-ink);
+  background: var(--cream);
+  color: var(--ink);
   font-family: var(--font-sans), system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 ::selection {
-  background: var(--color-accent);
+  background: var(--accent);
   color: white;
 }
 
@@ -39,9 +80,9 @@ textarea:focus {
 .shimmer {
   background: linear-gradient(
     90deg,
-    var(--color-stone) 25%,
-    var(--color-cream-dark) 50%,
-    var(--color-stone) 75%
+    var(--stone) 25%,
+    var(--cream-dark) 50%,
+    var(--stone) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.8s ease-in-out infinite;

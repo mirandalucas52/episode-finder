@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { I18nProvider } from "@/lib/i18n-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -34,7 +35,9 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
       className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <I18nProvider>{children}</I18nProvider>
+        <ThemeProvider>
+          <I18nProvider>{children}</I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

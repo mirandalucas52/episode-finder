@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { useI18n } from "@/lib/i18n-context";
+import { addToHistory, type HistoryEntry } from "@/lib/search-history";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import ThemeToggle from "@/components/ThemeToggle";
 import SearchModeSelector from "@/components/SearchModeSelector";
 import SearchBar from "@/components/SearchBar";
+import SearchHistory from "@/components/SearchHistory";
+import QuickSuggestions from "@/components/QuickSuggestions";
 import ResultCard from "@/components/ResultCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import QuotaExceededView from "@/components/QuotaExceededView";
@@ -24,11 +28,24 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
   const [quotaError, setQuotaError] = useState<QuotaError | null>(null);
   const [lastQuery, setLastQuery] = useState("");
+  const [searchBarQuery, setSearchBarQuery] = useState<string | undefined>(undefined);
+  const [historyKey, setHistoryKey] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const lastQueryRef = useRef("");
-  const lastModeRef = useRef<SearchMode>("film");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hist = localStorage.getItem("search-history");
+      if (hist && JSON.parse(hist).length > 0) setHasInteracted(true);
+    }
+  }, []);
 
   const handleSearch = useCallback(
-    async (query: string) => {
+    async (query: string, overrideMode?: SearchMode) => {
+      const searchMode = overrideMode || mode;
+      if (overrideMode) setMode(overrideMode);
+
+      setHasInteracted(true);
       setIsLoading(true);
       setResult(null);
       setTmdb(null);
@@ -36,9 +53,8 @@ const Home = () => {
       setQuotaError(null);
       setLastQuery(query);
       lastQueryRef.current = query;
-      lastModeRef.current = mode;
 
-      const response = await searchEpisode(query, mode, locale);
+      const response = await searchEpisode(query, searchMode, locale);
 
       if (response.quotaError) {
         setQuotaError(response.quotaError);
@@ -48,6 +64,15 @@ const Home = () => {
         setResult(response.result);
         setTmdb(response.tmdb);
         setFromCache(response.fromCache);
+
+        if (response.result?.found) {
+          addToHistory({
+            query,
+            mode: searchMode,
+            title: response.result.title,
+          });
+          setHistoryKey((k) => k + 1);
+        }
       }
 
       setIsLoading(false);
@@ -60,6 +85,22 @@ const Home = () => {
       handleSearch(lastQueryRef.current);
     }
   }, [handleSearch]);
+
+  const handleHistorySelect = useCallback(
+    (entry: HistoryEntry) => {
+      setSearchBarQuery(entry.query);
+      handleSearch(entry.query, entry.mode);
+    },
+    [handleSearch]
+  );
+
+  const handleSuggestionSelect = useCallback(
+    (query: string, suggestedMode: SearchMode) => {
+      setSearchBarQuery(query);
+      handleSearch(query, suggestedMode);
+    },
+    [handleSearch]
+  );
 
   const isDebug = process.env.NEXT_PUBLIC_DEBUG_MODE === "true";
 
@@ -85,8 +126,8 @@ const Home = () => {
         </button>
       )}
 
-      {/* Language switcher */}
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <ThemeToggle />
         <LocaleSwitcher />
       </div>
 
@@ -116,7 +157,17 @@ const Home = () => {
           <SearchModeSelector mode={mode} onChange={setMode} />
         </div>
 
-        <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+        <SearchBar
+          onSearch={(q) => handleSearch(q)}
+          isLoading={isLoading}
+          initialQuery={searchBarQuery}
+        />
+
+        <SearchHistory onSelect={handleHistorySelect} refreshKey={historyKey} />
+
+        {!hasInteracted && !isLoading && !result && (
+          <QuickSuggestions onSelect={handleSuggestionSelect} />
+        )}
 
         <div className="w-full mt-10 mb-16">
           <AnimatePresence mode="wait">

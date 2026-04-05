@@ -69,6 +69,11 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "footer.coffee": "Si ce site a sauvé votre soirée, offrez-moi un café pour faire tourner les serveurs",
     "footer.madeIn": "Fait avec soin à Paris",
+
+    "history.title": "Recherches récentes",
+    "history.clear": "Effacer",
+
+    "suggestions.title": "Ou essayez un exemple",
   },
 
   en: {
@@ -130,6 +135,11 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "footer.coffee": "If this site saved your evening, buy me a coffee to keep the servers running",
     "footer.madeIn": "Made with care in Paris",
+
+    "history.title": "Recent searches",
+    "history.clear": "Clear",
+
+    "suggestions.title": "Or try an example",
   },
 
   es: {
@@ -191,6 +201,11 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "footer.coffee": "Si este sitio salvó tu noche, invítame un café para mantener los servidores",
     "footer.madeIn": "Hecho con cariño en París",
+
+    "history.title": "Búsquedas recientes",
+    "history.clear": "Borrar",
+
+    "suggestions.title": "O prueba un ejemplo",
   },
 
   pt: {
@@ -252,6 +267,11 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "footer.coffee": "Se este site salvou sua noite, me pague um café para manter os servidores",
     "footer.madeIn": "Feito com carinho em Paris",
+
+    "history.title": "Pesquisas recentes",
+    "history.clear": "Limpar",
+
+    "suggestions.title": "Ou experimente um exemplo",
   },
 };
 
