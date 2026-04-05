@@ -132,8 +132,11 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "alternatives": [{"title": "Other possible movie", "reason": "Brief why"}]
 }
 
-Search ONLY movies, never TV series. If not found, set "found" to false.
-If your confidence is medium or low, include 2-3 alternative movies in "alternatives". If confidence is high, use an empty array [].`;
+Search ONLY movies, never TV series. Cover EVERYTHING: mainstream Hollywood, indie, foreign cinema, Soviet-era, Japanese anime films, Bollywood, obscure cult films, old silent films, animated films, stop-motion, puppet films, etc.
+
+Be GENEROUS with "found": if you have any plausible candidate, return it with an appropriate confidence level. Only set "found" to false when you genuinely cannot think of ANY movie matching the description.
+
+ALWAYS fill "alternatives" with 2-4 other plausible matches when confidence is not "high". Even if found=false, provide alternatives to help the user. Only use an empty array [] when confidence is "high" AND you are certain.`;
   }
 
   if (mode === "series") {
@@ -158,8 +161,11 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "alternatives": [{"title": "Other possible series", "reason": "Brief why"}]
 }
 
-NEVER give a season or episode number. Describe the series as a whole. If not found, set "found" to false.
-If your confidence is medium or low, include 2-3 alternative series in "alternatives". If confidence is high, use an empty array [].`;
+NEVER give a season or episode number. Describe the series as a whole. Cover EVERYTHING: mainstream, anime, telenovelas, mini-series, foreign shows, old Soviet-era series, puppet shows, etc.
+
+Be GENEROUS with "found": if you have any plausible candidate, return it. Only set "found" to false when no series could match.
+
+ALWAYS fill "alternatives" with 2-4 plausible matches when confidence is not "high". Even if found=false, provide alternatives to help the user.`;
   }
 
   return `You are a TV and movie expert. The user describes a specific scene. You must identify the EXACT EPISODE.
@@ -183,8 +189,9 @@ Respond ONLY with a valid JSON object, no markdown, no backticks:
   "alternatives": [{"title": "Other possible episode (Series SxEy)", "reason": "Brief why"}]
 }
 
-You MUST provide seasonNumber and episodeNumber if found. If the description is too vague, set "found" to false.
-If your confidence is medium or low, include 2-3 alternative episodes in "alternatives". If confidence is high, use an empty array [].`;
+You MUST provide seasonNumber and episodeNumber if found=true. If the description is too vague to pinpoint a single episode, set "found" to false — but STILL fill "alternatives" with 2-4 plausible episodes (with their series name and SxEy format) so the user can pick one.
+
+ALWAYS fill "alternatives" with 2-4 plausible matches when confidence is not "high".`;
 };
 
 const callGemini = async (

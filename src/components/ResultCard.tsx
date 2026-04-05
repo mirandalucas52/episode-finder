@@ -225,17 +225,25 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId }: ResultCardProps
             </div>
           </>
         ) : (
-          <div className="p-8 md:p-10 text-center">
-            <p className="font-serif text-xl text-ink-muted mb-2">
-              {result.resultType === "episode"
-                ? t("result.notFoundEpisode")
-                : result.resultType === "series"
-                  ? t("result.notFoundSeries")
-                  : t("result.notFoundFilm")}
-            </p>
-            <p className="text-sm text-ink-subtle leading-relaxed max-w-md mx-auto">
-              {result.explanation || t("result.moreDetails")}
-            </p>
+          <div className="p-8 md:p-10">
+            <div className="text-center">
+              <p className="font-serif text-xl text-ink-muted mb-2">
+                {result.resultType === "episode"
+                  ? t("result.notFoundEpisode")
+                  : result.resultType === "series"
+                    ? t("result.notFoundSeries")
+                    : t("result.notFoundFilm")}
+              </p>
+              <p className="text-sm text-ink-subtle leading-relaxed max-w-md mx-auto">
+                {result.explanation || t("result.moreDetails")}
+              </p>
+            </div>
+
+            {result.alternatives && result.alternatives.length > 0 && (
+              <div className="mt-6">
+                <DidYouMean alternatives={result.alternatives} />
+              </div>
+            )}
           </div>
         )}
       </div>
