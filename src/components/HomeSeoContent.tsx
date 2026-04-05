@@ -75,7 +75,7 @@ const HomeSeoContent = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="p-5 rounded-2xl bg-white border border-stone/60"
+              className="p-5 rounded-2xl bg-card border border-stone/60"
             >
               <div className="text-2xl mb-3">{f.icon}</div>
               <h3 className="font-serif text-lg text-ink mb-1">{f.title}</h3>
@@ -123,7 +123,7 @@ const HomeSeoContent = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="p-6 rounded-2xl bg-white border border-stone/60"
+              className="p-6 rounded-2xl bg-card border border-stone/60"
             >
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10 border border-accent/20 font-serif text-accent font-semibold mb-4">
                 {s.step}
@@ -166,7 +166,7 @@ const HomeSeoContent = () => {
           {faqItems.slice(0, 6).map((item, i) => (
             <details
               key={i}
-              className="group rounded-xl bg-white border border-stone/60 hover:border-stone-dark transition-colors"
+              className="group rounded-xl bg-card border border-stone/60 hover:border-stone-dark transition-colors"
             >
               <summary className="flex items-center justify-between gap-4 p-5 cursor-pointer list-none">
                 <h3 className="font-serif text-base text-ink">{item.question}</h3>

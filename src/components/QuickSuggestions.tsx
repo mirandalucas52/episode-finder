@@ -68,7 +68,7 @@ const QuickSuggestions = ({ onSelect }: QuickSuggestionsProps) => {
             whileHover={{ x: 4 }}
             onClick={() => onSelect(s.query, s.mode)}
             className="group flex items-center gap-3 px-4 py-3 rounded-xl
-                       bg-white border border-stone/40 hover:border-stone-dark
+                       bg-card border border-stone/40 hover:border-stone-dark
                        text-left transition-all duration-200"
           >
             <span className="text-sm shrink-0">{MODE_LABELS[s.mode]}</span>

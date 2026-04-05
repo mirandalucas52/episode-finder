@@ -61,7 +61,7 @@ const FaqPage = () => {
             {faqItems.map((item, i) => (
               <details
                 key={i}
-                className="group rounded-xl bg-white border border-stone/60 hover:border-stone-dark transition-colors"
+                className="group rounded-xl bg-card border border-stone/60 hover:border-stone-dark transition-colors"
               >
                 <summary className="flex items-center justify-between gap-4 p-5 cursor-pointer list-none">
                   <h2 className="font-serif text-base md:text-lg text-ink">

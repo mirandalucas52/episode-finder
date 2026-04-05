@@ -23,7 +23,7 @@ const SearchModeSelector = ({ mode, onChange }: SearchModeSelectorProps) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-      className="relative flex items-center bg-white border border-stone/60 rounded-xl p-1
+      className="relative flex items-center bg-card border border-stone/60 rounded-xl p-1
                  shadow-[0_1px_8px_rgba(26,25,23,0.03)]"
     >
       {modes.map((m) => {

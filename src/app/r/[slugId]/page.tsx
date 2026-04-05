@@ -118,7 +118,7 @@ const ResultPage = async ({ params }: PageProps) => {
               ]}
             />
 
-            <article className="rounded-2xl bg-white border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)]">
+            <article className="rounded-2xl bg-card border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)]">
               {tmdb?.stillUrl && isEpisode && (
                 <div className="relative w-full aspect-video overflow-hidden">
                   <Image

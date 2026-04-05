@@ -59,7 +59,7 @@ const TrendingPage = async () => {
       <Link
         key={row.id}
         href={href}
-        className="group flex gap-3 p-3 rounded-xl bg-white border border-stone/60 hover:border-stone-dark hover:shadow-[0_4px_20px_rgba(26,25,23,0.04)] transition-all"
+        className="group flex gap-3 p-3 rounded-xl bg-card border border-stone/60 hover:border-stone-dark hover:shadow-[0_4px_20px_rgba(26,25,23,0.04)] transition-all"
       >
         {row.tmdb_data?.posterUrl ? (
           <div className="shrink-0 w-14 h-20 rounded-md overflow-hidden">

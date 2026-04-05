@@ -100,7 +100,7 @@ const HowItWorksPage = () => {
           <section className="mb-10">
             <h2 className="font-serif text-2xl text-ink mb-4">Examples of what works</h2>
             <div className="space-y-3">
-              <div className="p-4 rounded-xl bg-white border border-stone/60">
+              <div className="p-4 rounded-xl bg-card border border-stone/60">
                 <p className="text-[11px] text-ink-subtle uppercase tracking-widest mb-2">Search</p>
                 <p className="text-sm text-ink-light italic mb-3">
                   &ldquo;A man on a bench tells a woman his life story while eating chocolates&rdquo;
@@ -109,7 +109,7 @@ const HowItWorksPage = () => {
                 <p className="text-sm text-ink font-medium">Forrest Gump (1994)</p>
               </div>
 
-              <div className="p-4 rounded-xl bg-white border border-stone/60">
+              <div className="p-4 rounded-xl bg-card border border-stone/60">
                 <p className="text-[11px] text-ink-subtle uppercase tracking-widest mb-2">Search</p>
                 <p className="text-sm text-ink-light italic mb-3">
                   &ldquo;A wedding that turns into a massacre in a medieval castle&rdquo;
@@ -118,7 +118,7 @@ const HowItWorksPage = () => {
                 <p className="text-sm text-ink font-medium">Game of Thrones — S03E09 &ldquo;The Rains of Castamere&rdquo;</p>
               </div>
 
-              <div className="p-4 rounded-xl bg-white border border-stone/60">
+              <div className="p-4 rounded-xl bg-card border border-stone/60">
                 <p className="text-[11px] text-ink-subtle uppercase tracking-widest mb-2">Search</p>
                 <p className="text-sm text-ink-light italic mb-3">
                   &ldquo;A chemistry teacher diagnosed with cancer starts making drugs&rdquo;

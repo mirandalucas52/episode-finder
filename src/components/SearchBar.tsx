@@ -63,7 +63,7 @@ const SearchBar = ({ onSearch, isLoading, initialQuery }: SearchBarProps) => {
             : "0 2px 16px rgba(26, 25, 23, 0.04), 0 1px 4px rgba(26, 25, 23, 0.02)",
         }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="relative rounded-2xl bg-white border border-stone/60 overflow-hidden"
+        className="relative rounded-2xl bg-card border border-stone/60 overflow-hidden"
       >
         <textarea
           ref={textareaRef}

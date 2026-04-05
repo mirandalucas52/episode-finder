@@ -206,7 +206,7 @@ const Home = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="w-full max-w-2xl mx-auto rounded-2xl bg-white border border-stone/60 p-8 text-center"
+                className="w-full max-w-2xl mx-auto rounded-2xl bg-card border border-stone/60 p-8 text-center"
               >
                 <p className="font-serif text-xl text-ink mb-2">{t("rateLimit.title")}</p>
                 <p className="text-sm text-ink-muted">{t("rateLimit.message")}</p>

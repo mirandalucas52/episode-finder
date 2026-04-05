@@ -51,7 +51,7 @@ const LocaleSwitcher = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full mt-1 z-50 bg-white rounded-xl border border-stone/60
+              className="absolute right-0 top-full mt-1 z-50 bg-card rounded-xl border border-stone/60
                          shadow-[0_4px_20px_rgba(26,25,23,0.08)] overflow-hidden min-w-[140px]"
             >
               {SUPPORTED_LOCALES.map((l) => (

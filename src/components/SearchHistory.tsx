@@ -55,7 +55,7 @@ const SearchHistory = ({ onSelect, refreshKey }: SearchHistoryProps) => {
               whileHover={{ scale: 1.02 }}
               onClick={() => onSelect(entry)}
               className="group flex items-center gap-2 px-3 py-1.5 rounded-lg
-                         bg-white border border-stone/60 hover:border-stone-dark
+                         bg-card border border-stone/60 hover:border-stone-dark
                          transition-all duration-200 max-w-[240px]"
             >
               <svg

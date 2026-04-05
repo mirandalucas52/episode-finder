@@ -65,7 +65,7 @@ const TrailerEmbed = ({ youtubeKey, title }: TrailerEmbedProps) => {
                 whileTap={{ scale: 0.95 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all group-hover:bg-white">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-card/95 backdrop-blur-sm flex items-center justify-center shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all group-hover:bg-card">
                   <svg
                     width="28"
                     height="28"

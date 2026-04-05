@@ -41,7 +41,7 @@ const RelatedResults = async ({ currentId, mode }: RelatedResultsProps) => {
             <Link
               key={row.id}
               href={href}
-              className="group flex gap-3 p-3 rounded-xl bg-white border border-stone/60 hover:border-stone-dark transition-all"
+              className="group flex gap-3 p-3 rounded-xl bg-card border border-stone/60 hover:border-stone-dark transition-all"
             >
               {row.tmdb_data?.posterUrl ? (
                 <div className="shrink-0 w-10 h-14 rounded-md overflow-hidden">

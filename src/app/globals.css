@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-cream: var(--cream);
   --color-cream-dark: var(--cream-dark);
@@ -12,6 +14,8 @@
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
   --color-accent-dark: var(--accent-dark);
+  --color-card: var(--card);
+  --color-card-subtle: var(--card-subtle);
   --font-serif: var(--font-playfair);
   --font-sans: var(--font-inter);
 }
@@ -28,11 +32,13 @@
   --accent: #8B7355;
   --accent-light: #A6906F;
   --accent-dark: #6F5C44;
+  --card: #FFFFFF;
+  --card-subtle: #F3F0EB;
 }
 
 .dark {
   --cream: #0F0E0C;
-  --cream-dark: #18161300;
+  --cream-dark: #181613;
   --stone: #2A2724;
   --stone-dark: #3A3632;
   --ink: #F5F2ED;
@@ -42,18 +48,8 @@
   --accent: #C9A678;
   --accent-light: #D9BE8C;
   --accent-dark: #A6906F;
-}
-
-.dark .bg-white {
-  background-color: #1A1815;
-}
-
-.dark .bg-cream-dark\/50 {
-  background-color: rgba(42, 39, 36, 0.5);
-}
-
-.dark .bg-cream-dark {
-  background-color: #252320;
+  --card: #1A1815;
+  --card-subtle: #252320;
 }
 
 body {
