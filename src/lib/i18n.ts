@@ -13,8 +13,8 @@ const translations: Record<Locale, Record<string, string>> = {
   fr: {
     "site.title": "Retrouve mon épisode",
     "site.subtitle": "Décrivez une scène de mémoire. On retrouve le film, la série ou l'épisode exact pour vous.",
-    "site.heading1": "Retrouve mon",
-    "site.heading2": "épisode",
+    "site.heading1": "Retrouvez toute",
+    "site.heading2": "scène",
 
     "search.placeholder": "Décrivez la scène dont vous vous souvenez...",
     "search.charsRemaining": "caractères restants",
@@ -152,8 +152,8 @@ const translations: Record<Locale, Record<string, string>> = {
   en: {
     "site.title": "Find My Episode",
     "site.subtitle": "Describe a scene from memory. We'll find the exact movie, series, or episode for you.",
-    "site.heading1": "Find my",
-    "site.heading2": "episode",
+    "site.heading1": "Find any",
+    "site.heading2": "scene",
 
     "search.placeholder": "Describe the scene you remember...",
     "search.charsRemaining": "characters remaining",
@@ -291,8 +291,8 @@ const translations: Record<Locale, Record<string, string>> = {
   es: {
     "site.title": "Encuentra mi episodio",
     "site.subtitle": "Describe una escena de memoria. Encontramos la película, serie o episodio exacto para ti.",
-    "site.heading1": "Encuentra mi",
-    "site.heading2": "episodio",
+    "site.heading1": "Encuentra cualquier",
+    "site.heading2": "escena",
 
     "search.placeholder": "Describe la escena que recuerdas...",
     "search.charsRemaining": "caracteres restantes",
@@ -430,8 +430,8 @@ const translations: Record<Locale, Record<string, string>> = {
   pt: {
     "site.title": "Encontre meu episódio",
     "site.subtitle": "Descreva uma cena de memória. Encontramos o filme, a série ou o episódio exato para você.",
-    "site.heading1": "Encontre meu",
-    "site.heading2": "episódio",
+    "site.heading1": "Encontre qualquer",
+    "site.heading2": "cena",
 
     "search.placeholder": "Descreva a cena que você lembra...",
     "search.charsRemaining": "caracteres restantes",
