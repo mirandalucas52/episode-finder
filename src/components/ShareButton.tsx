@@ -7,9 +7,10 @@ import { useI18n } from "@/lib/i18n-context";
 type ShareButtonProps = {
   query: string;
   title: string;
+  resultUrl?: string;
 };
 
-const ShareButton = ({ query, title }: ShareButtonProps) => {
+const ShareButton = ({ query, title, resultUrl }: ShareButtonProps) => {
   const { t } = useI18n();
 
   const handleShare = async () => {
@@ -17,7 +18,9 @@ const ShareButton = ({ query, title }: ShareButtonProps) => {
       query: query.slice(0, 60) + (query.length > 60 ? "..." : ""),
       title,
     });
-    const url = window.location.href;
+    const url = resultUrl
+      ? `${window.location.origin}${resultUrl}`
+      : window.location.href;
 
     if (navigator.share) {
       try {

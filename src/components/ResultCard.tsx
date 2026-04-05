@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useI18n } from "@/lib/i18n-context";
 import type { SearchResult, TmdbData } from "@/types";
+import { buildResultUrl } from "@/lib/slug";
 import SpoilerReveal from "@/components/SpoilerReveal";
 import WatchProviders from "@/components/WatchProviders";
 import ShareButton from "@/components/ShareButton";
@@ -199,7 +200,11 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId }: ResultCardProps
                   transition={{ delay: 0.5 }}
                   className="mt-6 pt-4 border-t border-stone/40 flex items-center justify-between flex-wrap gap-3"
                 >
-                  <ShareButton query={query} title={result.title} />
+                  <ShareButton
+                    query={query}
+                    title={result.title}
+                    resultUrl={cacheId ? buildResultUrl(result, cacheId) : undefined}
+                  />
                   {cacheId && <FeedbackButtons cacheId={cacheId} query={query} />}
                   {fromCache && (
                     <p className="text-[11px] text-ink-subtle tracking-wide">
