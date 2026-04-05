@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { useI18n } from "@/lib/i18n-context";
@@ -12,6 +13,7 @@ import SearchBar from "@/components/SearchBar";
 import SearchHistory from "@/components/SearchHistory";
 import QuickSuggestions from "@/components/QuickSuggestions";
 import HomeSeoContent from "@/components/HomeSeoContent";
+import TopNav from "@/components/TopNav";
 import ResultCard from "@/components/ResultCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import QuotaExceededView from "@/components/QuotaExceededView";
@@ -134,6 +136,10 @@ const Home = () => {
         </button>
       )}
 
+      <div className="fixed top-4 left-4 z-50">
+        <TopNav />
+      </div>
+
       <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
         <ThemeToggle />
         <LocaleSwitcher />
@@ -170,6 +176,24 @@ const Home = () => {
           isLoading={isLoading}
           initialQuery={searchBarQuery}
         />
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="mt-5 md:hidden"
+        >
+          <Link
+            href="/trending"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs text-ink-muted bg-card border border-stone/60 hover:border-stone-dark transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+              <polyline points="17 6 23 6 23 12" />
+            </svg>
+            {t("nav.trending")}
+          </Link>
+        </motion.div>
 
         <SearchHistory onSelect={handleHistorySelect} refreshKey={historyKey} />
 
