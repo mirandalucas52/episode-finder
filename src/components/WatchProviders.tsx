@@ -2,19 +2,16 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useI18n } from "@/lib/i18n-context";
 import type { WatchProvider } from "@/types";
 
 type WatchProvidersProps = {
   providers: WatchProvider[];
 };
 
-const typeLabels: Record<string, string> = {
-  flatrate: "Streaming",
-  rent: "Location",
-  buy: "Achat",
-};
-
 const WatchProviders = ({ providers }: WatchProvidersProps) => {
+  const { t } = useI18n();
+
   if (providers.length === 0) return null;
 
   const grouped = providers.reduce(
@@ -34,13 +31,13 @@ const WatchProviders = ({ providers }: WatchProvidersProps) => {
       className="pt-4 border-t border-stone/40"
     >
       <h3 className="text-xs font-medium text-ink-subtle uppercase tracking-widest mb-3">
-        Où regarder
+        {t("watch.title")}
       </h3>
       <div className="space-y-3">
         {Object.entries(grouped).map(([type, items]) => (
           <div key={type}>
             <p className="text-[11px] text-ink-subtle mb-1.5">
-              {typeLabels[type] || type}
+              {t(`watch.${type}`)}
             </p>
             <div className="flex flex-wrap gap-2">
               {items.map((provider) => (

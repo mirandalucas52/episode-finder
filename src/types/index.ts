@@ -1,9 +1,15 @@
-export type EpisodeResult = {
+export type SearchMode = "film" | "series" | "episode";
+
+export type SearchResult = {
   found: boolean;
+  resultType: SearchMode;
   title: string;
-  season: string;
-  episode: string;
-  episodeTitle: string;
+  year: string | null;
+  seasonNumber: number | null;
+  episodeNumber: number | null;
+  episodeTitle: string | null;
+  totalSeasons: number | null;
+  status: string | null;
   synopsis: string;
   confidence: "high" | "medium" | "low";
   explanation: string;
@@ -22,9 +28,14 @@ export type WatchProvider = {
   url: string;
 };
 
+export type QuotaError = {
+  type: "quota";
+};
+
 export type SearchResponse = {
-  result: EpisodeResult | null;
+  result: SearchResult | null;
   tmdb: TmdbData | null;
   fromCache: boolean;
   error?: string;
+  quotaError?: QuotaError;
 };

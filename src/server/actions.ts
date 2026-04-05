@@ -3,36 +3,58 @@
 import { supabase } from "@/lib/supabase";
 import { geminiModel } from "@/lib/gemini";
 import { fetchTmdbData } from "@/lib/tmdb";
-import type { EpisodeResult, TmdbData, SearchResponse } from "@/types";
+import type { SearchResult, SearchMode, TmdbData, SearchResponse } from "@/types";
 
 const normalizeQuery = (query: string): string => {
   return query.trim().toLowerCase().replace(/\s+/g, " ");
 };
 
 const searchCache = async (
-  normalizedQuery: string
-): Promise<{ result: EpisodeResult; tmdb: TmdbData | null; id: number } | null> => {
+  normalizedQuery: string,
+  mode: SearchMode
+): Promise<{ result: SearchResult; tmdb: TmdbData | null; id: number } | null> => {
   try {
-    // Exact match first
+    // 1. Exact match (same query + same mode)
     const { data: exact } = await supabase
       .from("search_cache")
       .select("id, result, tmdb_data")
       .eq("normalized_query", normalizedQuery)
+      .eq("search_mode", mode)
       .maybeSingle();
 
     if (exact?.result) {
       supabase.rpc("increment_hit_count_by_id", { row_id: exact.id }).then(() => {});
       return {
-        result: exact.result as EpisodeResult,
+        result: exact.result as SearchResult,
         tmdb: (exact.tmdb_data as TmdbData) || null,
         id: exact.id,
       };
     }
 
-    // Fuzzy match via trigram similarity
+    // 2. Exact match cross-mode (same query, different mode but compatible result)
+    const { data: crossMode } = await supabase
+      .from("search_cache")
+      .select("id, result, tmdb_data, search_mode")
+      .eq("normalized_query", normalizedQuery)
+      .maybeSingle();
+
+    if (crossMode?.result) {
+      const cached = crossMode.result as SearchResult;
+      if (cached.resultType === mode) {
+        supabase.rpc("increment_hit_count_by_id", { row_id: crossMode.id }).then(() => {});
+        return {
+          result: cached,
+          tmdb: (crossMode.tmdb_data as TmdbData) || null,
+          id: crossMode.id,
+        };
+      }
+    }
+
+    // 3. Fuzzy match (similar query, same mode, lower threshold for more hits)
     const { data: fuzzy, error } = await supabase.rpc("match_similar_query", {
       search_query: normalizedQuery,
-      match_threshold: 0.45,
+      query_mode: mode,
+      match_threshold: 0.35,
       match_count: 1,
     });
 
@@ -42,7 +64,7 @@ const searchCache = async (
     supabase.rpc("increment_hit_count_by_id", { row_id: match.id }).then(() => {});
 
     return {
-      result: match.result as EpisodeResult,
+      result: match.result as SearchResult,
       tmdb: (match.tmdb_data as TmdbData) || null,
       id: match.id,
     };
@@ -54,7 +76,8 @@ const searchCache = async (
 const saveToCache = async (
   originalQuery: string,
   normalizedQuery: string,
-  result: EpisodeResult,
+  mode: SearchMode,
+  result: SearchResult,
   tmdbData: TmdbData | null
 ): Promise<void> => {
   try {
@@ -62,46 +85,107 @@ const saveToCache = async (
       {
         original_query: originalQuery.trim(),
         normalized_query: normalizedQuery,
+        search_mode: mode,
         result,
         tmdb_data: tmdbData,
         created_at: new Date().toISOString(),
       },
-      { onConflict: "normalized_query" }
+      { onConflict: "normalized_query,search_mode" }
     );
   } catch {
     console.error("Failed to save to cache");
   }
 };
 
-const SYSTEM_PROMPT = `Tu es un expert en séries TV et films. L'utilisateur va décrire une scène qu'il a vue. Tu dois identifier précisément de quel épisode de série ou de quel film il s'agit.
+const LANG_INSTRUCTION = `IMPORTANT: Detect the language of the user's query and respond in THAT SAME LANGUAGE. If the user writes in English, respond in English. If in French, respond in French. If in Portuguese, respond in Portuguese. Etc. The JSON keys must stay in English, but all text values (title, synopsis, explanation, status) must be in the user's language.`;
 
-Réponds UNIQUEMENT avec un objet JSON valide, sans markdown, sans backticks, avec cette structure exacte :
+const PROMPTS: Record<SearchMode, string> = {
+  film: `You are a cinema expert. The user describes a scene from a MOVIE. You must identify the exact movie.
+
+${LANG_INSTRUCTION}
+
+Respond ONLY with a valid JSON object, no markdown, no backticks:
 {
   "found": true/false,
-  "title": "Nom de la série ou du film",
-  "season": "Saison X" ou "N/A" si c'est un film,
-  "episode": "Épisode X" ou "N/A" si c'est un film,
-  "episodeTitle": "Titre de l'épisode" ou "N/A",
-  "synopsis": "Bref résumé de l'épisode/film (2-3 phrases)",
-  "confidence": "high" ou "medium" ou "low",
-  "explanation": "Explication de pourquoi cette scène correspond (2-3 phrases)"
+  "resultType": "film",
+  "title": "Movie name",
+  "year": "Release year",
+  "seasonNumber": null,
+  "episodeNumber": null,
+  "episodeTitle": null,
+  "totalSeasons": null,
+  "status": null,
+  "synopsis": "Movie summary (2-3 sentences)",
+  "confidence": "high" or "medium" or "low",
+  "explanation": "Why this movie matches the description (2-3 sentences)"
 }
 
-Si tu ne trouves pas, mets "found" à false et explique dans "explanation" pourquoi tu n'as pas pu identifier la scène. Remplis les autres champs avec "Non identifié".`;
+Search ONLY movies, never TV series. If not found, set "found" to false.`,
 
-const callGemini = async (query: string): Promise<EpisodeResult> => {
+  series: `You are a TV series expert. The user is looking for a TV SERIES as a whole (not a specific episode). Describe the work globally.
+
+${LANG_INSTRUCTION}
+
+Respond ONLY with a valid JSON object, no markdown, no backticks:
+{
+  "found": true/false,
+  "resultType": "series",
+  "title": "Series name",
+  "year": "First air year",
+  "seasonNumber": null,
+  "episodeNumber": null,
+  "episodeTitle": null,
+  "totalSeasons": total number of seasons (integer),
+  "status": "Ongoing" or "Ended" (in the user's language),
+  "synopsis": "Global overview of the series (2-3 sentences, not a specific episode)",
+  "confidence": "high" or "medium" or "low",
+  "explanation": "Why this series matches the description (2-3 sentences)"
+}
+
+NEVER give a season or episode number. Describe the series as a whole. If not found, set "found" to false.`,
+
+  episode: `You are a TV and movie expert. The user describes a specific scene. You must identify the EXACT EPISODE.
+
+${LANG_INSTRUCTION}
+
+Respond ONLY with a valid JSON object, no markdown, no backticks:
+{
+  "found": true/false,
+  "resultType": "episode",
+  "title": "Series name",
+  "year": null,
+  "seasonNumber": season number (integer, mandatory if found=true),
+  "episodeNumber": episode number (integer, mandatory if found=true),
+  "episodeTitle": "Episode title",
+  "totalSeasons": null,
+  "status": null,
+  "synopsis": "Summary of this specific episode (2-3 sentences)",
+  "confidence": "high" or "medium" or "low",
+  "explanation": "Why this episode matches the described scene (2-3 sentences)"
+}
+
+You MUST provide seasonNumber and episodeNumber if found. If the description is too vague to identify a specific episode, set "found" to false and explain that more details are needed (names, dialogue, location...).`,
+};
+
+const callGemini = async (
+  query: string,
+  mode: SearchMode
+): Promise<SearchResult> => {
   const result = await geminiModel.generateContent([
-    { text: SYSTEM_PROMPT },
-    { text: `Scène décrite par l'utilisateur : "${query}"` },
+    { text: PROMPTS[mode] },
+    { text: `Description de l'utilisateur : "${query}"` },
   ]);
 
   const text = result.response.text();
   const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
 
-  return JSON.parse(cleaned) as EpisodeResult;
+  return JSON.parse(cleaned) as SearchResult;
 };
 
-export const searchEpisode = async (query: string): Promise<SearchResponse> => {
+export const searchEpisode = async (
+  query: string,
+  mode: SearchMode = "episode"
+): Promise<SearchResponse> => {
   if (!query.trim() || query.trim().length < 10) {
     return {
       result: null,
@@ -114,7 +198,7 @@ export const searchEpisode = async (query: string): Promise<SearchResponse> => {
   const normalizedQuery = normalizeQuery(query);
 
   try {
-    const cached = await searchCache(normalizedQuery);
+    const cached = await searchCache(normalizedQuery, mode);
     if (cached) {
       return {
         result: cached.result,
@@ -123,22 +207,34 @@ export const searchEpisode = async (query: string): Promise<SearchResponse> => {
       };
     }
 
-    const result = await callGemini(query.trim());
+    const result = await callGemini(query.trim(), mode);
 
     let tmdbData: TmdbData | null = null;
     if (result.found) {
       tmdbData = await fetchTmdbData(
         result.title,
-        result.season,
-        result.episode
+        result.seasonNumber ? `Saison ${result.seasonNumber}` : "N/A",
+        result.episodeNumber ? `Épisode ${result.episodeNumber}` : "N/A"
       );
     }
 
-    await saveToCache(query, normalizedQuery, result, tmdbData);
+    await saveToCache(query, normalizedQuery, mode, result, tmdbData);
 
     return { result, tmdb: tmdbData, fromCache: false };
   } catch (error) {
-    console.error("Search error:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Search error:", message);
+
+    const isQuota = /429|403|quota|rate.?limit/i.test(message);
+    if (isQuota) {
+      return {
+        result: null,
+        tmdb: null,
+        fromCache: false,
+        quotaError: { type: "quota" },
+      };
+    }
+
     return {
       result: null,
       tmdb: null,

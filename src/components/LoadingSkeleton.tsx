@@ -1,8 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useI18n } from "@/lib/i18n-context";
 
 const LoadingSkeleton = () => {
+  const { t } = useI18n();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -39,7 +42,7 @@ const LoadingSkeleton = () => {
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           className="mt-8 text-center text-xs text-ink-subtle tracking-wide"
         >
-          L&apos;IA analyse votre description...
+          {t("loading.text")}
         </motion.p>
       </div>
     </motion.div>

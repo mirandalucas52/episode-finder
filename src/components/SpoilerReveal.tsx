@@ -2,16 +2,14 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useI18n } from "@/lib/i18n-context";
 
 type SpoilerRevealProps = {
   children: React.ReactNode;
-  label?: string;
 };
 
-const SpoilerReveal = ({
-  children,
-  label = "Cliquer pour révéler le résumé (Spoilers)",
-}: SpoilerRevealProps) => {
+const SpoilerReveal = ({ children }: SpoilerRevealProps) => {
+  const { t } = useI18n();
   const [revealed, setRevealed] = useState(false);
 
   return (
@@ -36,7 +34,7 @@ const SpoilerReveal = ({
             className="absolute inset-0 flex items-center justify-center cursor-pointer"
           >
             <span className="px-4 py-2 text-xs font-medium text-ink-muted bg-cream/90 border border-stone rounded-full backdrop-blur-sm tracking-wide hover:text-ink hover:border-stone-dark transition-colors duration-200">
-              {label}
+              {t("spoiler.reveal")}
             </span>
           </motion.button>
         )}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
+import { I18nProvider } from "@/lib/i18n-context";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -15,13 +16,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Retrouve mon épisode — Décris une scène, retrouve ton épisode",
+  title: "Find My Episode — Describe a scene, find your episode",
   description:
-    "Décrivez une scène de série ou de film et laissez l'IA retrouver l'épisode exact pour vous.",
+    "Describe a scene from a TV show or movie and find the exact episode in seconds.",
   openGraph: {
-    title: "Retrouve mon épisode",
+    title: "Find My Episode",
     description:
-      "Décrivez une scène de série ou de film et laissez l'IA retrouver l'épisode exact.",
+      "Describe a scene from a TV show or movie and find the exact episode.",
     type: "website",
   },
 };
@@ -32,7 +33,9 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
       lang="fr"
       className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <I18nProvider>{children}</I18nProvider>
+      </body>
     </html>
   );
 };

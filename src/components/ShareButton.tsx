@@ -2,6 +2,7 @@
 
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useI18n } from "@/lib/i18n-context";
 
 type ShareButtonProps = {
   query: string;
@@ -9,21 +10,26 @@ type ShareButtonProps = {
 };
 
 const ShareButton = ({ query, title }: ShareButtonProps) => {
+  const { t } = useI18n();
+
   const handleShare = async () => {
-    const text = `J'ai cherché : "${query.slice(0, 60)}${query.length > 60 ? "..." : ""}" — et j'ai trouvé : ${title} !`;
+    const text = t("share.text", {
+      query: query.slice(0, 60) + (query.length > 60 ? "..." : ""),
+      title,
+    });
     const url = window.location.href;
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Retrouve mon épisode", text, url });
+        await navigator.share({ title: t("share.nativeTitle"), text, url });
         return;
       } catch {
-        // User cancelled or share failed, fall through to clipboard
+        // fall through to clipboard
       }
     }
 
     await navigator.clipboard.writeText(`${text}\n${url}`);
-    toast("Lien copié dans le presse-papier", {
+    toast(t("share.copied"), {
       duration: 2500,
       style: {
         background: "#FAF8F5",
@@ -58,7 +64,7 @@ const ShareButton = ({ query, title }: ShareButtonProps) => {
         <polyline points="16 6 12 2 8 6" />
         <line x1="12" y1="2" x2="12" y2="15" />
       </svg>
-      Partager
+      {t("share.button")}
     </motion.button>
   );
 };

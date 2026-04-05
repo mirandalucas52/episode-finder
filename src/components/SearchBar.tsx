@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useI18n } from "@/lib/i18n-context";
 
 type SearchBarProps = {
   onSearch: (query: string) => void;
@@ -9,6 +10,7 @@ type SearchBarProps = {
 };
 
 const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -62,7 +64,7 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
-          placeholder="Décrivez la scène dont vous vous souvenez..."
+          placeholder={t("search.placeholder")}
           rows={3}
           className="w-full resize-none px-7 pt-6 pb-4 text-ink font-sans text-base leading-relaxed placeholder:text-ink-subtle/70 bg-transparent"
         />
@@ -70,8 +72,8 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
         <div className="flex items-center justify-between px-7 pb-5">
           <p className="text-xs text-ink-subtle tracking-wide">
             {query.trim().length < 10 && query.length > 0
-              ? `${10 - query.trim().length} caractères restants`
-              : "Entrée pour rechercher"}
+              ? `${10 - query.trim().length} ${t("search.charsRemaining")}`
+              : t("search.hint")}
           </p>
 
           <motion.button
@@ -101,7 +103,7 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
                     }}
                     className="inline-block w-3.5 h-3.5 border-2 border-cream/30 border-t-cream rounded-full"
                   />
-                  Recherche...
+                  {t("search.loading")}
                 </motion.span>
               ) : (
                 <motion.span
@@ -110,7 +112,7 @@ const SearchBar = ({ onSearch, isLoading }: SearchBarProps) => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  Rechercher
+                  {t("search.button")}
                 </motion.span>
               )}
             </AnimatePresence>
