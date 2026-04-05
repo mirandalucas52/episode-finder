@@ -55,7 +55,7 @@ export const faqItems: Record<Locale, FaqItem[]> = {
     {
       question: "Is my search history private?",
       answer:
-        "Your search history is stored locally in your browser (via localStorage) and never sent to our servers. You can clear it at any time. The search queries themselves are cached on our backend to speed up repeat searches, but they're not linked to any personal identifier.",
+        "Your search history stays on your device and is never sent to our servers. You can clear it at any time. Search queries are cached on our backend to speed up repeat searches, but they're not linked to any personal identifier.",
     },
   ],
 
@@ -108,7 +108,7 @@ export const faqItems: Record<Locale, FaqItem[]> = {
     {
       question: "Mon historique est-il privé ?",
       answer:
-        "Votre historique de recherche est stocké localement dans votre navigateur (localStorage) et n'est jamais envoyé à nos serveurs. Vous pouvez l'effacer à tout moment. Les requêtes sont mises en cache côté serveur pour accélérer les recherches récurrentes, mais elles ne sont liées à aucun identifiant personnel.",
+        "Votre historique de recherche reste sur votre appareil et n'est jamais envoyé à nos serveurs. Vous pouvez l'effacer à tout moment. Les requêtes sont mises en cache côté serveur pour accélérer les recherches récurrentes, mais elles ne sont liées à aucun identifiant personnel.",
     },
   ],
 
@@ -161,7 +161,7 @@ export const faqItems: Record<Locale, FaqItem[]> = {
     {
       question: "¿Mi historial es privado?",
       answer:
-        "Tu historial de búsqueda se guarda localmente en tu navegador (localStorage) y nunca se envía a nuestros servidores. Puedes borrarlo en cualquier momento. Las consultas se almacenan en caché en el backend para acelerar búsquedas repetidas, pero no están vinculadas a ningún identificador personal.",
+        "Tu historial de búsqueda permanece en tu dispositivo y nunca se envía a nuestros servidores. Puedes borrarlo en cualquier momento. Las consultas se almacenan en caché en el backend para acelerar búsquedas repetidas, pero no están vinculadas a ningún identificador personal.",
     },
   ],
 
@@ -214,7 +214,7 @@ export const faqItems: Record<Locale, FaqItem[]> = {
     {
       question: "O meu histórico é privado?",
       answer:
-        "O seu histórico de pesquisa é guardado localmente no navegador (localStorage) e nunca é enviado para os nossos servidores. Pode apagá-lo a qualquer momento. As consultas são mantidas em cache no backend para acelerar pesquisas repetidas, mas não estão ligadas a qualquer identificador pessoal.",
+        "O seu histórico de pesquisa fica no seu dispositivo e nunca é enviado para os nossos servidores. Pode apagá-lo a qualquer momento. As consultas são mantidas em cache no backend para acelerar pesquisas repetidas, mas não estão ligadas a qualquer identificador pessoal.",
     },
   ],
 };
