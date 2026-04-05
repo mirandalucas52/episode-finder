@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
-import { buildResultSlug } from "@/lib/slug";
+import { buildResultSlug, slugify } from "@/lib/slug";
 import { getServerT } from "@/lib/i18n-server";
 import type { SearchResult, TmdbData } from "@/types";
 
 type RelatedResultsProps = {
   currentId: number;
+  currentResult: SearchResult;
   mode: string;
 };
 
@@ -16,18 +17,43 @@ type RelatedRow = {
   tmdb_data: TmdbData | null;
 };
 
-const RelatedResults = async ({ currentId, mode }: RelatedResultsProps) => {
+const dedupKey = (r: SearchResult): string => {
+  const base = slugify(r.title);
+  if (r.resultType === "episode" && r.seasonNumber && r.episodeNumber) {
+    return `${base}-s${r.seasonNumber}e${r.episodeNumber}`;
+  }
+  if (r.resultType === "film" && r.year) {
+    return `${base}-${r.year}`;
+  }
+  return base;
+};
+
+const RelatedResults = async ({ currentId, currentResult, mode }: RelatedResultsProps) => {
   const { t } = await getServerT();
 
+  // Fetch more than needed so we can dedupe cross-language duplicates
   const { data } = await supabase
     .from("search_cache")
-    .select("id, result, tmdb_data")
+    .select("id, result, tmdb_data, hit_count")
     .eq("search_mode", mode)
     .neq("id", currentId)
     .order("hit_count", { ascending: false })
-    .limit(6);
+    .limit(40);
 
-  const rows = (data as RelatedRow[] | null)?.filter((r) => r.result?.found) || [];
+  const raw = (data as RelatedRow[] | null)?.filter((r) => r.result?.found) || [];
+
+  // Deduplicate by content key (title + year/episode)
+  // Rows are sorted by hit_count desc, so the first occurrence wins (most popular variant)
+  const currentKey = dedupKey(currentResult);
+  const byKey = new Map<string, RelatedRow>();
+
+  for (const row of raw) {
+    const key = dedupKey(row.result);
+    if (key === currentKey) continue;
+    if (!byKey.has(key)) byKey.set(key, row);
+  }
+
+  const rows = Array.from(byKey.values()).slice(0, 6);
 
   if (rows.length === 0) return null;
 

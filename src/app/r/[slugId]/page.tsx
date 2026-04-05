@@ -194,7 +194,7 @@ const ResultPage = async ({ params }: PageProps) => {
               </div>
             </article>
 
-            <RelatedResults currentId={row.id} mode={row.search_mode} />
+            <RelatedResults currentId={row.id} currentResult={result} mode={row.search_mode} />
 
             <div className="mt-10 text-center">
               <Link
