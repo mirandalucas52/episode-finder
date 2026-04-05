@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
-import { buildResultSlug, slugify } from "@/lib/slug";
+import { buildResultSlug, contentDedupKey } from "@/lib/slug";
 import { getServerT } from "@/lib/i18n-server";
 import type { SearchResult, TmdbData } from "@/types";
 
@@ -15,17 +15,6 @@ type RelatedRow = {
   id: number;
   result: SearchResult;
   tmdb_data: TmdbData | null;
-};
-
-const dedupKey = (r: SearchResult): string => {
-  const base = slugify(r.title);
-  if (r.resultType === "episode" && r.seasonNumber && r.episodeNumber) {
-    return `${base}-s${r.seasonNumber}e${r.episodeNumber}`;
-  }
-  if (r.resultType === "film" && r.year) {
-    return `${base}-${r.year}`;
-  }
-  return base;
 };
 
 const RelatedResults = async ({ currentId, currentResult, mode }: RelatedResultsProps) => {
@@ -44,11 +33,11 @@ const RelatedResults = async ({ currentId, currentResult, mode }: RelatedResults
 
   // Deduplicate by content key (title + year/episode)
   // Rows are sorted by hit_count desc, so the first occurrence wins (most popular variant)
-  const currentKey = dedupKey(currentResult);
+  const currentKey = contentDedupKey(currentResult);
   const byKey = new Map<string, RelatedRow>();
 
   for (const row of raw) {
-    const key = dedupKey(row.result);
+    const key = contentDedupKey(row.result);
     if (key === currentKey) continue;
     if (!byKey.has(key)) byKey.set(key, row);
   }

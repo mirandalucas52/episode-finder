@@ -248,7 +248,8 @@ export const searchEpisode = async (
       tmdbData = await fetchTmdbData(
         result.title,
         result.seasonNumber ? `Saison ${result.seasonNumber}` : "N/A",
-        result.episodeNumber ? `Épisode ${result.episodeNumber}` : "N/A"
+        result.episodeNumber ? `Épisode ${result.episodeNumber}` : "N/A",
+        result.resultType
       );
     }
 

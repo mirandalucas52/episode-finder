@@ -135,10 +135,12 @@ const parseSeasonEpisode = (
 export const fetchTmdbData = async (
   title: string,
   seasonStr: string,
-  episodeStr: string
+  episodeStr: string,
+  resultType: "film" | "series" | "episode" = "episode"
 ) => {
   try {
-    const isMovie = seasonStr === "N/A";
+    // "film" → movie, "series"/"episode" → TV
+    const isMovie = resultType === "film";
     const searchResult = await searchTitle(title, isMovie);
 
     if (!searchResult) {
@@ -150,7 +152,7 @@ export const fetchTmdbData = async (
       : null;
 
     let stillUrl: string | null = null;
-    if (!isMovie) {
+    if (resultType === "episode") {
       const parsed = parseSeasonEpisode(seasonStr, episodeStr);
       if (parsed) {
         stillUrl = await getEpisodeStill(

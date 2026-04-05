@@ -32,3 +32,21 @@ export const parseIdFromSlug = (slugId: string): number | null => {
 export const buildResultUrl = (result: SearchResult, id: number): string => {
   return `/r/${buildResultSlug(result, id)}`;
 };
+
+/**
+ * Content key for cross-language deduplication.
+ * Same movie/series/episode across locales produces the same key.
+ */
+export const contentDedupKey = (r: SearchResult): string => {
+  const base = slugify(r.title);
+  if (r.resultType === "episode" && r.seasonNumber && r.episodeNumber) {
+    return `${base}-s${r.seasonNumber}e${r.episodeNumber}`;
+  }
+  if (r.resultType === "film" && r.year) {
+    return `${base}-${r.year}`;
+  }
+  if (r.resultType === "series" && r.year) {
+    return `series-${base}-${r.year}`;
+  }
+  return `${r.resultType}-${base}`;
+};

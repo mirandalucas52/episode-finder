@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
-import { buildResultSlug } from "@/lib/slug";
+import { buildResultSlug, contentDedupKey } from "@/lib/slug";
 import { getServerT } from "@/lib/i18n-server";
 import type { SearchResult, TmdbData } from "@/types";
 
@@ -49,19 +49,34 @@ export const revalidate = 3600;
 const TrendingPage = async () => {
   const { t } = await getServerT();
 
-  const { data: allTime } = await supabase
+  // Fetch extra rows so that dedup by content key can still fill the grid
+  const { data: allTimeRaw } = await supabase
     .from("search_cache")
     .select("id, result, tmdb_data, hit_count, created_at")
     .order("hit_count", { ascending: false })
-    .limit(24);
+    .limit(120);
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: recent } = await supabase
+  const { data: recentRaw } = await supabase
     .from("search_cache")
     .select("id, result, tmdb_data, hit_count, created_at")
     .gte("created_at", weekAgo)
     .order("hit_count", { ascending: false })
-    .limit(12);
+    .limit(60);
+
+  const dedupe = (rows: TrendingRow[] | null, limit: number): TrendingRow[] => {
+    if (!rows) return [];
+    const byKey = new Map<string, TrendingRow>();
+    for (const row of rows) {
+      if (!row.result?.found) continue;
+      const key = contentDedupKey(row.result);
+      if (!byKey.has(key)) byKey.set(key, row);
+    }
+    return Array.from(byKey.values()).slice(0, limit);
+  };
+
+  const allTime = dedupe(allTimeRaw as TrendingRow[] | null, 24);
+  const recent = dedupe(recentRaw as TrendingRow[] | null, 12);
 
   const renderCard = (row: TrendingRow) => {
     if (!row.result?.found) return null;
@@ -134,13 +149,13 @@ const TrendingPage = async () => {
           <p className="mt-4 text-ink-muted text-base max-w-xl mx-auto">{t("trending.subtitle")}</p>
         </header>
 
-        {recent && recent.length > 0 && (
+        {recent.length > 0 && (
           <section className="mb-12">
             <h2 className="text-xs font-medium text-ink-subtle uppercase tracking-widest mb-4">
               {t("trending.thisWeek")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {(recent as TrendingRow[]).map(renderCard)}
+              {recent.map(renderCard)}
             </div>
           </section>
         )}
@@ -149,9 +164,9 @@ const TrendingPage = async () => {
           <h2 className="text-xs font-medium text-ink-subtle uppercase tracking-widest mb-4">
             {t("trending.allTime")}
           </h2>
-          {allTime && allTime.length > 0 ? (
+          {allTime.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {(allTime as TrendingRow[]).map(renderCard)}
+              {allTime.map(renderCard)}
             </div>
           ) : (
             <p className="text-sm text-ink-subtle text-center py-12">
