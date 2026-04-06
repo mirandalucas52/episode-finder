@@ -51,11 +51,16 @@ const searchCache = async (
     if (error || !fuzzy || fuzzy.length === 0) return null;
 
     const match = fuzzy[0];
-    const cachedLen = (match.normalized_query as string).length;
-    const queryLen = normalizedQuery.length;
 
-    // If user's query is 30%+ longer than cached → they're refining, skip cache
-    if (queryLen > cachedLen * 1.3) return null;
+    // Detect query refinement: if the new query contains most of the cached
+    // query's words PLUS new words, the user is adding precision → skip cache
+    const cachedWords = new Set((match.normalized_query as string).split(" "));
+    const queryWords = normalizedQuery.split(" ");
+    const overlap = queryWords.filter((w) => cachedWords.has(w)).length;
+    const overlapRatio = cachedWords.size > 0 ? overlap / cachedWords.size : 0;
+    const newWords = queryWords.length - overlap;
+
+    if (overlapRatio > 0.6 && newWords >= 3) return null;
 
     supabase.rpc("increment_hit_count_by_id", { row_id: match.id }).then(() => {});
 
