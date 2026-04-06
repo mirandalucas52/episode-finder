@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/lib/i18n-context";
 
+const MAX_CHARS = 300;
+const COUNTER_THRESHOLD = 200;
+
 type SearchBarProps = {
   onSearch: (query: string) => void;
   isLoading: boolean;
@@ -18,7 +21,7 @@ const SearchBar = ({ onSearch, isLoading, initialQuery }: SearchBarProps) => {
 
   useEffect(() => {
     if (initialQuery !== undefined) {
-      setQuery(initialQuery);
+      setQuery(initialQuery.slice(0, MAX_CHARS));
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
         textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
@@ -26,10 +29,13 @@ const SearchBar = ({ onSearch, isLoading, initialQuery }: SearchBarProps) => {
     }
   }, [initialQuery]);
 
+  const trimmedLength = query.trim().length;
+  const showCounter = query.length > COUNTER_THRESHOLD;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim().length >= 10 && !isLoading) {
-      onSearch(query);
+    if (trimmedLength >= 10 && !isLoading) {
+      onSearch(query.trim());
     }
   };
 
@@ -40,11 +46,14 @@ const SearchBar = ({ onSearch, isLoading, initialQuery }: SearchBarProps) => {
     }
   };
 
-  const handleTextareaInput = () => {
-    const el = textareaRef.current;
-    if (el) {
-      el.style.height = "auto";
-      el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    if (val.length <= MAX_CHARS) {
+      setQuery(val);
+    }
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
     }
   };
 
@@ -68,28 +77,35 @@ const SearchBar = ({ onSearch, isLoading, initialQuery }: SearchBarProps) => {
         <textarea
           ref={textareaRef}
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            handleTextareaInput();
-          }}
+          onChange={handleChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
           placeholder={t("search.placeholder")}
+          maxLength={MAX_CHARS}
           rows={3}
           className="w-full resize-none px-7 pt-6 pb-4 text-ink font-sans text-base leading-relaxed placeholder:text-ink-subtle/70 bg-transparent"
         />
 
         <div className="flex items-center justify-between px-7 pb-5">
-          <p className="text-xs text-ink-subtle tracking-wide">
-            {query.trim().length < 10 && query.length > 0
-              ? `${10 - query.trim().length} ${t("search.charsRemaining")}`
-              : t("search.hint")}
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs text-ink-subtle tracking-wide">
+              {trimmedLength < 10 && query.length > 0
+                ? `${10 - trimmedLength} ${t("search.charsRemaining")}`
+                : t("search.hint")}
+            </p>
+            {showCounter && (
+              <span className={`text-[10px] tabular-nums tracking-wide ${
+                query.length >= MAX_CHARS ? "text-rose-500" : "text-ink-subtle/50"
+              }`}>
+                {query.length}/{MAX_CHARS}
+              </span>
+            )}
+          </div>
 
           <motion.button
             type="submit"
-            disabled={query.trim().length < 10 || isLoading}
+            disabled={trimmedLength < 10 || isLoading}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="px-6 py-2.5 bg-ink text-cream text-sm font-medium tracking-wide rounded-xl

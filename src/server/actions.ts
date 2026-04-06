@@ -102,96 +102,29 @@ const LANG_NAMES: Record<string, string> = {
 
 const getLangInstruction = (locale: string): string => {
   const lang = LANG_NAMES[locale] || "ENGLISH";
-  return `CRITICAL LANGUAGE RULE: You MUST write ALL text values in ${lang}. This includes the synopsis, explanation, status, and episodeTitle. Do NOT use any other language. The JSON keys stay in English, but every text value must be in ${lang}.
-
-TITLES RULE: ALWAYS keep movie and TV series titles in their ORIGINAL form as they are officially known (usually in English). Do NOT translate, invent, or guess translated titles. For example: "Prison Break" stays "Prison Break", "Breaking Bad" stays "Breaking Bad", "Game of Thrones" stays "Game of Thrones". Only use a translated title if it is the officially released name in that country's market and you are 100% certain.`;
+  return `LANG:${lang}. All text values in ${lang}. Keep titles in ORIGINAL form (never translate/invent titles).`;
 };
 
+const SHARED_RULES = `Rules: JSON only, no markdown. Be generous: prefer low-confidence match over found=false. Always 2-4 alternatives when not high confidence (even if found=false). Cover all cinema: mainstream, indie, foreign, anime, Soviet, Bollywood, cult, silent, puppet, stop-motion.`;
+
 const buildPrompt = (mode: SearchMode, locale: string): string => {
-  const langInstruction = getLangInstruction(locale);
+  const lang = getLangInstruction(locale);
 
   if (mode === "film") {
-    return `You are a cinema expert. The user describes a scene from a MOVIE. You must identify the exact movie.
-
-${langInstruction}
-
-Respond ONLY with a valid JSON object, no markdown, no backticks:
-{
-  "found": true/false,
-  "resultType": "film",
-  "title": "Movie name",
-  "year": "Release year",
-  "seasonNumber": null,
-  "episodeNumber": null,
-  "episodeTitle": null,
-  "totalSeasons": null,
-  "status": null,
-  "synopsis": "Movie summary (2-3 sentences)",
-  "confidence": "high" or "medium" or "low",
-  "explanation": "Why this movie matches the description (2-3 sentences)",
-  "alternatives": [{"title": "Other possible movie", "reason": "Brief why"}]
-}
-
-Search ONLY movies, never TV series. Cover EVERYTHING: mainstream Hollywood, indie, foreign cinema, Soviet-era, Japanese anime films, Bollywood, obscure cult films, old silent films, animated films, stop-motion, puppet films, etc.
-
-Be GENEROUS with "found": if you have any plausible candidate, return it with an appropriate confidence level. Only set "found" to false when you genuinely cannot think of ANY movie matching the description.
-
-ALWAYS fill "alternatives" with 2-4 other plausible matches when confidence is not "high". Even if found=false, provide alternatives to help the user. Only use an empty array [] when confidence is "high" AND you are certain.`;
+    return `Cinema expert. Identify the MOVIE. ${lang}
+${SHARED_RULES} Movies only, never TV.
+JSON:{found,resultType:"film",title,year,seasonNumber:null,episodeNumber:null,episodeTitle:null,totalSeasons:null,status:null,synopsis(2-3 sentences),confidence:"high"|"medium"|"low",explanation(2-3 sentences),alternatives:[{title,reason}]}`;
   }
 
   if (mode === "series") {
-    return `You are a TV series expert. The user is looking for a TV SERIES as a whole (not a specific episode). Describe the work globally.
-
-${langInstruction}
-
-Respond ONLY with a valid JSON object, no markdown, no backticks:
-{
-  "found": true/false,
-  "resultType": "series",
-  "title": "Series name",
-  "year": "First air year",
-  "seasonNumber": null,
-  "episodeNumber": null,
-  "episodeTitle": null,
-  "totalSeasons": total number of seasons (integer),
-  "status": "Ongoing" or "Ended" (in the target language),
-  "synopsis": "Global overview of the series (2-3 sentences, not a specific episode)",
-  "confidence": "high" or "medium" or "low",
-  "explanation": "Why this series matches the description (2-3 sentences)",
-  "alternatives": [{"title": "Other possible series", "reason": "Brief why"}]
-}
-
-NEVER give a season or episode number. Describe the series as a whole. Cover EVERYTHING: mainstream, anime, telenovelas, mini-series, foreign shows, old Soviet-era series, puppet shows, etc.
-
-Be GENEROUS with "found": if you have any plausible candidate, return it. Only set "found" to false when no series could match.
-
-ALWAYS fill "alternatives" with 2-4 plausible matches when confidence is not "high". Even if found=false, provide alternatives to help the user.`;
+    return `TV expert. Identify the SERIES (not episode). ${lang}
+${SHARED_RULES} No season/episode numbers. Include totalSeasons(int) and status(Ongoing/Ended in target lang).
+JSON:{found,resultType:"series",title,year,seasonNumber:null,episodeNumber:null,episodeTitle:null,totalSeasons,status,synopsis(2-3 sentences),confidence:"high"|"medium"|"low",explanation(2-3 sentences),alternatives:[{title,reason}]}`;
   }
 
-  return `You are a TV and movie expert. The user describes a specific scene. You must identify the EXACT EPISODE.
-
-${langInstruction}
-
-Respond ONLY with a valid JSON object, no markdown, no backticks:
-{
-  "found": true/false,
-  "resultType": "episode",
-  "title": "Series name",
-  "year": null,
-  "seasonNumber": season number (integer, mandatory if found=true),
-  "episodeNumber": episode number (integer, mandatory if found=true),
-  "episodeTitle": "Episode title",
-  "totalSeasons": null,
-  "status": null,
-  "synopsis": "Summary of this specific episode (2-3 sentences)",
-  "confidence": "high" or "medium" or "low",
-  "explanation": "Why this episode matches the described scene (2-3 sentences)",
-  "alternatives": [{"title": "Other possible episode (Series SxEy)", "reason": "Brief why"}]
-}
-
-You MUST provide seasonNumber and episodeNumber if found=true. If the description is too vague to pinpoint a single episode, set "found" to false — but STILL fill "alternatives" with 2-4 plausible episodes (with their series name and SxEy format) so the user can pick one.
-
-ALWAYS fill "alternatives" with 2-4 plausible matches when confidence is not "high".`;
+  return `TV/movie expert. Identify the EXACT EPISODE. ${lang}
+${SHARED_RULES} seasonNumber+episodeNumber mandatory if found=true. If too vague, found=false but still fill alternatives with SxEy format.
+JSON:{found,resultType:"episode",title,year:null,seasonNumber,episodeNumber,episodeTitle,totalSeasons:null,status:null,synopsis(2-3 sentences),confidence:"high"|"medium"|"low",explanation(2-3 sentences),alternatives:[{title,reason}]}`;
 };
 
 const callGemini = async (
@@ -215,7 +148,9 @@ export const searchEpisode = async (
   mode: SearchMode = "episode",
   locale: string = "fr"
 ): Promise<SearchResponse> => {
-  if (!query.trim() || query.trim().length < 10) {
+  const trimmed = query.trim().replace(/\s+/g, " ").slice(0, 300);
+
+  if (!trimmed || trimmed.length < 10) {
     return {
       result: null,
       tmdb: null,
@@ -225,7 +160,7 @@ export const searchEpisode = async (
   }
 
   // Locale is part of the cache key to avoid cross-language pollution
-  const normalizedQuery = `${locale}::${normalizeQuery(query)}`;
+  const normalizedQuery = `${locale}::${normalizeQuery(trimmed)}`;
 
   try {
     const cached = await searchCache(normalizedQuery, mode);
@@ -250,7 +185,7 @@ export const searchEpisode = async (
       };
     }
 
-    const result = await callGemini(query.trim(), mode, locale);
+    const result = await callGemini(trimmed, mode, locale);
 
     let tmdbData: TmdbData | null = null;
     if (result.found) {
@@ -262,7 +197,7 @@ export const searchEpisode = async (
       );
     }
 
-    const cacheId = await saveToCache(query, normalizedQuery, mode, result, tmdbData);
+    const cacheId = await saveToCache(trimmed, normalizedQuery, mode, result, tmdbData);
 
     return { result, tmdb: tmdbData, fromCache: false, cacheId: cacheId || undefined };
   } catch (error) {
