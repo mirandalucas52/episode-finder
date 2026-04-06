@@ -52,15 +52,16 @@ const searchCache = async (
 
     const match = fuzzy[0];
 
-    // Detect query refinement: if the new query contains most of the cached
-    // query's words PLUS new words, the user is adding precision → skip cache
+    // Detect query modification: if the queries share most words but the user
+    // added OR removed at least 3 words, they're refining → skip cache
     const cachedWords = new Set((match.normalized_query as string).split(" "));
     const queryWords = normalizedQuery.split(" ");
     const overlap = queryWords.filter((w) => cachedWords.has(w)).length;
     const overlapRatio = cachedWords.size > 0 ? overlap / cachedWords.size : 0;
-    const newWords = queryWords.length - overlap;
+    const addedWords = queryWords.length - overlap;
+    const removedWords = cachedWords.size - overlap;
 
-    if (overlapRatio > 0.6 && newWords >= 3) return null;
+    if (overlapRatio > 0.5 && (addedWords >= 3 || removedWords >= 3)) return null;
 
     supabase.rpc("increment_hit_count_by_id", { row_id: match.id }).then(() => {});
 
