@@ -183,7 +183,7 @@ export const searchEpisode = async (
   mode: SearchMode = "episode",
   locale: string = "fr"
 ): Promise<SearchResponse> => {
-  const trimmed = query.trim().replace(/\s+/g, " ").slice(0, 300);
+  const trimmed = query.trim().replace(/\s+/g, " ").slice(0, 600);
 
   if (!trimmed || trimmed.length < 10) {
     return {

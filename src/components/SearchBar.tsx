@@ -4,8 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/lib/i18n-context";
 
-const MAX_CHARS = 300;
-const COUNTER_THRESHOLD = 200;
+const MAX_CHARS = 600;
+const COUNTER_THRESHOLD = 400;
 
 type SearchBarProps = {
   onSearch: (query: string) => void;
