@@ -97,7 +97,7 @@ alter table rate_limits enable row level security;
 -- ═══════════════════════════════════════════════════
 create table if not exists result_feedback (
   id bigint generated always as identity primary key,
-  cache_id bigint references search_cache(id) on delete cascade,
+  cache_id bigint references search_cache(id) on delete set null,
   query text not null,
   vote smallint not null check (vote in (-1, 1)),
   wrong_title text,

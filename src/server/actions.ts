@@ -273,18 +273,28 @@ export const submitFeedback = async (
   searchMode?: string
 ): Promise<{ success: boolean }> => {
   try {
-    await supabase.from("result_feedback").insert({
-      cache_id: cacheId,
-      query: query.trim(),
-      vote,
-      wrong_title: wrongTitle || null,
-      correct_title: correctTitle || null,
-      search_mode: searchMode || null,
-    });
-
-    // On thumbs down: delete the bad cache entry so next search gets a fresh result
     if (vote === -1) {
+      // Delete the bad cache entry FIRST (cascades feedback FK)
       await supabase.from("search_cache").delete().eq("id", cacheId);
+
+      // THEN insert correction WITHOUT cache_id (entry is gone)
+      await supabase.from("result_feedback").insert({
+        cache_id: null,
+        query: query.trim(),
+        vote,
+        wrong_title: wrongTitle || null,
+        correct_title: correctTitle || null,
+        search_mode: searchMode || null,
+      });
+    } else {
+      await supabase.from("result_feedback").insert({
+        cache_id: cacheId,
+        query: query.trim(),
+        vote,
+        wrong_title: null,
+        correct_title: null,
+        search_mode: searchMode || null,
+      });
     }
 
     return { success: true };
