@@ -40,7 +40,7 @@ const searchCache = async (
       };
     }
 
-    // 2. Fuzzy match (similar query, same mode, lower threshold for more hits)
+    // 2. Fuzzy match (similar query, same mode)
     const { data: fuzzy, error } = await supabase.rpc("match_similar_query", {
       search_query: normalizedQuery,
       query_mode: mode,
@@ -51,6 +51,12 @@ const searchCache = async (
     if (error || !fuzzy || fuzzy.length === 0) return null;
 
     const match = fuzzy[0];
+    const cachedLen = (match.normalized_query as string).length;
+    const queryLen = normalizedQuery.length;
+
+    // If user's query is 30%+ longer than cached → they're refining, skip cache
+    if (queryLen > cachedLen * 1.3) return null;
+
     supabase.rpc("increment_hit_count_by_id", { row_id: match.id }).then(() => {});
 
     return {
