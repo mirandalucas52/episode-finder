@@ -79,6 +79,11 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "feedback.ask": "Ce résultat est-il correct ?",
     "feedback.thanks": "Merci pour votre retour !",
+    "feedback.correctPrompt": "Quel est le bon titre ?",
+    "feedback.correctPlaceholder": "Ex: Breaking Bad, Forrest Gump...",
+    "feedback.send": "Envoyer",
+    "feedback.skipCorrection": "Je ne sais pas, mais ce n'est pas le bon",
+    "feedback.correctionSaved": "Merci ! On en tiendra compte pour les prochaines recherches.",
 
     "result.didYouMean": "Autres possibilités",
 
@@ -222,6 +227,11 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "feedback.ask": "Is this result correct?",
     "feedback.thanks": "Thanks for your feedback!",
+    "feedback.correctPrompt": "What's the correct title?",
+    "feedback.correctPlaceholder": "E.g. Breaking Bad, Forrest Gump...",
+    "feedback.send": "Send",
+    "feedback.skipCorrection": "I don't know, but this isn't right",
+    "feedback.correctionSaved": "Thanks! We'll use this to improve future searches.",
 
     "result.didYouMean": "Other possibilities",
 
@@ -365,6 +375,11 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "feedback.ask": "¿Es correcto este resultado?",
     "feedback.thanks": "¡Gracias por tu opinión!",
+    "feedback.correctPrompt": "¿Cuál es el título correcto?",
+    "feedback.correctPlaceholder": "Ej: Breaking Bad, Forrest Gump...",
+    "feedback.send": "Enviar",
+    "feedback.skipCorrection": "No sé, pero este no es correcto",
+    "feedback.correctionSaved": "¡Gracias! Lo tendremos en cuenta para futuras búsquedas.",
 
     "result.didYouMean": "Otras posibilidades",
 
@@ -508,6 +523,11 @@ const translations: Record<Locale, Record<string, string>> = {
 
     "feedback.ask": "Este resultado está correto?",
     "feedback.thanks": "Obrigado pelo seu feedback!",
+    "feedback.correctPrompt": "Qual é o título correto?",
+    "feedback.correctPlaceholder": "Ex: Breaking Bad, Forrest Gump...",
+    "feedback.send": "Enviar",
+    "feedback.skipCorrection": "Não sei, mas este não é o correto",
+    "feedback.correctionSaved": "Obrigado! Vamos considerar nas próximas pesquisas.",
 
     "result.didYouMean": "Outras possibilidades",
 

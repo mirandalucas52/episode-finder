@@ -214,7 +214,14 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId }: ResultCardProps
                     title={result.title}
                     resultUrl={cacheId ? buildResultUrl(result, cacheId) : undefined}
                   />
-                  {cacheId && <FeedbackButtons cacheId={cacheId} query={query} />}
+                  {cacheId && (
+                    <FeedbackButtons
+                      cacheId={cacheId}
+                      query={query}
+                      resultTitle={result.title}
+                      searchMode={result.resultType}
+                    />
+                  )}
                   {fromCache && (
                     <p className="text-[11px] text-ink-subtle tracking-wide">
                       {t("result.cached")}

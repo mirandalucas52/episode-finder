@@ -100,10 +100,17 @@ create table if not exists result_feedback (
   cache_id bigint references search_cache(id) on delete cascade,
   query text not null,
   vote smallint not null check (vote in (-1, 1)),
+  wrong_title text,
+  correct_title text,
+  search_mode text,
   created_at timestamptz not null default now()
 );
 
 create index if not exists idx_feedback_cache_id
   on result_feedback (cache_id);
+
+create index if not exists idx_feedback_corrections
+  on result_feedback (search_mode, created_at desc)
+  where vote = -1 and correct_title is not null;
 
 alter table result_feedback enable row level security;

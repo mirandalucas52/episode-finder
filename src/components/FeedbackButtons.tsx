@@ -9,21 +9,35 @@ import { submitFeedback } from "@/server/actions";
 type FeedbackButtonsProps = {
   cacheId: number;
   query: string;
+  resultTitle: string;
+  searchMode: string;
 };
 
-const FeedbackButtons = ({ cacheId, query }: FeedbackButtonsProps) => {
+const FeedbackButtons = ({
+  cacheId,
+  query,
+  resultTitle,
+  searchMode,
+}: FeedbackButtonsProps) => {
   const { t } = useI18n();
   const [voted, setVoted] = useState<1 | -1 | null>(null);
+  const [showCorrection, setShowCorrection] = useState(false);
+  const [correctTitle, setCorrectTitle] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleVote = async (vote: 1 | -1) => {
     if (voted || submitting) return;
+
+    if (vote === -1) {
+      setShowCorrection(true);
+      return;
+    }
+
     setSubmitting(true);
     setVoted(vote);
-
     const result = await submitFeedback(cacheId, query, vote);
-
-    if (result.success) {
+    if (!result.success) setVoted(null);
+    else {
       toast(t("feedback.thanks"), {
         duration: 2000,
         style: {
@@ -33,17 +47,64 @@ const FeedbackButtons = ({ cacheId, query }: FeedbackButtonsProps) => {
           fontSize: "13px",
         },
       });
-    } else {
-      setVoted(null);
     }
+    setSubmitting(false);
+  };
 
+  const handleSubmitCorrection = async () => {
+    setSubmitting(true);
+    setVoted(-1);
+    setShowCorrection(false);
+
+    const result = await submitFeedback(
+      cacheId,
+      query,
+      -1,
+      resultTitle,
+      correctTitle.trim() || undefined,
+      searchMode
+    );
+
+    if (!result.success) {
+      setVoted(null);
+      setShowCorrection(true);
+    } else {
+      toast(t("feedback.correctionSaved"), {
+        duration: 3000,
+        style: {
+          background: "var(--cream)",
+          border: "1px solid var(--stone)",
+          color: "var(--ink)",
+          fontSize: "13px",
+        },
+      });
+    }
+    setSubmitting(false);
+  };
+
+  const handleSkipCorrection = async () => {
+    setSubmitting(true);
+    setVoted(-1);
+    setShowCorrection(false);
+
+    await submitFeedback(cacheId, query, -1, resultTitle, undefined, searchMode);
+
+    toast(t("feedback.thanks"), {
+      duration: 2000,
+      style: {
+        background: "var(--cream)",
+        border: "1px solid var(--stone)",
+        color: "var(--ink)",
+        fontSize: "13px",
+      },
+    });
     setSubmitting(false);
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-2">
       <AnimatePresence mode="wait">
-        {voted === null ? (
+        {voted === null && !showCorrection && (
           <motion.div
             key="buttons"
             initial={{ opacity: 0 }}
@@ -81,7 +142,50 @@ const FeedbackButtons = ({ cacheId, query }: FeedbackButtonsProps) => {
               </svg>
             </button>
           </motion.div>
-        ) : (
+        )}
+
+        {showCorrection && !voted && (
+          <motion.div
+            key="correction"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col gap-2 w-full"
+          >
+            <p className="text-[11px] text-ink-muted">
+              {t("feedback.correctPrompt")}
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={correctTitle}
+                onChange={(e) => setCorrectTitle(e.target.value)}
+                placeholder={t("feedback.correctPlaceholder")}
+                className="flex-1 px-3 py-1.5 text-xs bg-transparent border border-stone/60 rounded-lg
+                           text-ink placeholder:text-ink-subtle/50 focus:outline-none focus:border-accent/40"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSubmitCorrection();
+                }}
+              />
+              <button
+                onClick={handleSubmitCorrection}
+                disabled={submitting}
+                className="px-3 py-1.5 text-xs font-medium bg-ink text-cream rounded-lg
+                           hover:bg-ink-light transition-colors disabled:opacity-50"
+              >
+                {t("feedback.send")}
+              </button>
+            </div>
+            <button
+              onClick={handleSkipCorrection}
+              className="text-[10px] text-ink-subtle hover:text-ink-muted transition-colors text-left"
+            >
+              {t("feedback.skipCorrection")}
+            </button>
+          </motion.div>
+        )}
+
+        {voted !== null && (
           <motion.p
             key="voted"
             initial={{ opacity: 0, scale: 0.9 }}

@@ -127,14 +127,40 @@ ${SHARED_RULES} seasonNumber+episodeNumber mandatory if found=true. If too vague
 JSON:{found,resultType:"episode",title,year:null,seasonNumber,episodeNumber,episodeTitle,totalSeasons:null,status:null,synopsis(2-3 sentences),confidence:"high"|"medium"|"low",explanation(2-3 sentences),alternatives:[{title,reason}]}`;
 };
 
+const fetchCorrections = async (mode: SearchMode): Promise<string> => {
+  try {
+    const { data } = await supabase
+      .from("result_feedback")
+      .select("query, wrong_title, correct_title")
+      .eq("vote", -1)
+      .eq("search_mode", mode)
+      .not("correct_title", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (!data || data.length === 0) return "";
+
+    const lines = data.map(
+      (r) => `- "${r.query}" → NOT "${r.wrong_title}", correct: "${r.correct_title}"`
+    );
+
+    return `\nCommunity corrections (avoid these mistakes):\n${lines.join("\n")}`;
+  } catch {
+    return "";
+  }
+};
+
 const callGemini = async (
   query: string,
   mode: SearchMode,
   locale: string
 ): Promise<SearchResult> => {
+  const corrections = await fetchCorrections(mode);
+  const prompt = buildPrompt(mode, locale) + corrections;
+
   const result = await geminiModel.generateContent([
-    { text: buildPrompt(mode, locale) },
-    { text: `User query: "${query}"` },
+    { text: prompt },
+    { text: `"${query}"` },
   ]);
 
   const text = result.response.text();
@@ -226,14 +252,26 @@ export const searchEpisode = async (
 export const submitFeedback = async (
   cacheId: number,
   query: string,
-  vote: 1 | -1
+  vote: 1 | -1,
+  wrongTitle?: string,
+  correctTitle?: string,
+  searchMode?: string
 ): Promise<{ success: boolean }> => {
   try {
     await supabase.from("result_feedback").insert({
       cache_id: cacheId,
       query: query.trim(),
       vote,
+      wrong_title: wrongTitle || null,
+      correct_title: correctTitle || null,
+      search_mode: searchMode || null,
     });
+
+    // On thumbs down: delete the bad cache entry so next search gets a fresh result
+    if (vote === -1) {
+      await supabase.from("search_cache").delete().eq("id", cacheId);
+    }
+
     return { success: true };
   } catch {
     return { success: false };
