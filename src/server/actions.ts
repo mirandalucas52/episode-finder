@@ -140,15 +140,18 @@ const fetchCorrections = async (mode: SearchMode): Promise<string> => {
       .select("query, wrong_title, correct_title")
       .eq("vote", -1)
       .eq("search_mode", mode)
-      .not("correct_title", "is", null)
+      .not("wrong_title", "is", null)
       .order("created_at", { ascending: false })
       .limit(10);
 
     if (!data || data.length === 0) return "";
 
-    const lines = data.map(
-      (r) => `- "${r.query}" → NOT "${r.wrong_title}", correct: "${r.correct_title}"`
-    );
+    const lines = data.map((r) => {
+      if (r.correct_title) {
+        return `- "${r.query}" → NOT "${r.wrong_title}", correct: "${r.correct_title}"`;
+      }
+      return `- "${r.query}" → NOT "${r.wrong_title}" (confirmed wrong by user)`;
+    });
 
     return `\nCommunity corrections (avoid these mistakes):\n${lines.join("\n")}`;
   } catch {
