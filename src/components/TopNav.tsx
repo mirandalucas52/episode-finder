@@ -30,6 +30,17 @@ const TopNav = () => {
       >
         {t("nav.faq")}
       </Link>
+      <Link
+        href="/stats"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-ink-muted hover:bg-cream-dark border border-transparent hover:border-stone/40 transition-all duration-200"
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+          <path d="M4 16s1-1 4-1 5 2 8 2 4-1 4-1" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        {t("nav.stats")}
+      </Link>
     </nav>
   );
 };

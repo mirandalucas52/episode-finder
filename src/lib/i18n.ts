@@ -81,6 +81,15 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.title": "Recherches récentes",
     "history.clear": "Effacer",
 
+    "stats.title": "Vos statistiques",
+    "stats.subtitle": "Votre parcours cinématographique en chiffres",
+    "stats.total": "Recherches",
+    "stats.searches": "recherches",
+    "stats.recentTitle": "Dernières découvertes",
+    "stats.share": "Partager mes stats",
+    "stats.backHome": "Retour à l'accueil",
+    "stats.shareText": "Mon parcours sur Find My Episode :",
+
     "suggestions.title": "Ou essayez un exemple",
     "scroll.hint": "Défiler pour découvrir",
     "social.count": "moments retrouvés avec précision",
@@ -106,6 +115,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "nav.trending": "Tendances",
     "nav.howItWorks": "Comment ça marche",
     "nav.faq": "FAQ",
+    "nav.stats": "Mes stats",
     "nav.backToSearch": "Retour à la recherche",
 
     "footer.description": "Décrivez une scène et retrouvez l'épisode ou le film exact d'où elle vient.",
@@ -237,6 +247,15 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.title": "Recent searches",
     "history.clear": "Clear",
 
+    "stats.title": "Your stats",
+    "stats.subtitle": "Your cinematic journey in numbers",
+    "stats.total": "Searches",
+    "stats.searches": "searches",
+    "stats.recentTitle": "Recent discoveries",
+    "stats.share": "Share my stats",
+    "stats.backHome": "Back to home",
+    "stats.shareText": "My journey on Find My Episode:",
+
     "suggestions.title": "Or try an example",
     "scroll.hint": "Scroll to explore",
     "social.count": "scenes identified with precision",
@@ -262,6 +281,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "nav.trending": "Trending",
     "nav.howItWorks": "How it works",
     "nav.faq": "FAQ",
+    "nav.stats": "My stats",
     "nav.backToSearch": "Back to search",
 
     "footer.description": "Describe any scene and find the exact TV episode or movie it comes from.",
@@ -393,6 +413,15 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.title": "Búsquedas recientes",
     "history.clear": "Borrar",
 
+    "stats.title": "Tus estadísticas",
+    "stats.subtitle": "Tu recorrido cinematográfico en números",
+    "stats.total": "Búsquedas",
+    "stats.searches": "búsquedas",
+    "stats.recentTitle": "Descubrimientos recientes",
+    "stats.share": "Compartir mis stats",
+    "stats.backHome": "Volver al inicio",
+    "stats.shareText": "Mi recorrido en Find My Episode:",
+
     "suggestions.title": "O prueba un ejemplo",
     "scroll.hint": "Desplázate para explorar",
     "social.count": "escenas identificadas con precisión",
@@ -418,6 +447,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "nav.trending": "Tendencias",
     "nav.howItWorks": "Cómo funciona",
     "nav.faq": "Preguntas",
+    "nav.stats": "Mis stats",
     "nav.backToSearch": "Volver a la búsqueda",
 
     "footer.description": "Describe una escena y encuentra el episodio o película exacta de donde proviene.",
@@ -549,6 +579,15 @@ const translations: Record<Locale, Record<string, string>> = {
     "history.title": "Pesquisas recentes",
     "history.clear": "Limpar",
 
+    "stats.title": "Suas estatísticas",
+    "stats.subtitle": "Sua jornada cinematográfica em números",
+    "stats.total": "Pesquisas",
+    "stats.searches": "pesquisas",
+    "stats.recentTitle": "Descobertas recentes",
+    "stats.share": "Compartilhar minhas stats",
+    "stats.backHome": "Voltar ao início",
+    "stats.shareText": "Minha jornada no Find My Episode:",
+
     "suggestions.title": "Ou experimente um exemplo",
     "scroll.hint": "Role para explorar",
     "social.count": "momentos encontrados com precisão",
@@ -574,6 +613,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "nav.trending": "Tendências",
     "nav.howItWorks": "Como funciona",
     "nav.faq": "FAQ",
+    "nav.stats": "Minhas stats",
     "nav.backToSearch": "Voltar à pesquisa",
 
     "footer.description": "Descreva uma cena e encontre o episódio ou filme exato de onde ela vem.",

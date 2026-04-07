@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/lib/i18n-context";
 import { getHistory, clearHistory, type HistoryEntry } from "@/lib/search-history";
@@ -54,23 +55,33 @@ const SearchHistory = ({ onSelect, refreshKey }: SearchHistoryProps) => {
               exit={{ opacity: 0, scale: 0.9 }}
               whileHover={{ scale: 1.02 }}
               onClick={() => onSelect(entry)}
-              className="group flex items-center gap-2 px-3 py-1.5 rounded-lg
+              className="group flex items-center gap-2.5 px-3 py-1.5 rounded-lg
                          bg-card border border-stone/60 hover:border-stone-dark
-                         transition-all duration-200 max-w-[240px]"
+                         transition-all duration-200 max-w-[260px]"
             >
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                className="text-ink-subtle shrink-0"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
+              {entry.posterUrl ? (
+                <Image
+                  src={entry.posterUrl}
+                  alt={entry.title}
+                  width={20}
+                  height={30}
+                  className="rounded-sm object-cover shrink-0"
+                />
+              ) : (
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="text-ink-subtle shrink-0"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              )}
               <span className="text-xs text-ink-muted group-hover:text-ink truncate">
                 {entry.title}
               </span>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { useI18n } from "@/lib/i18n-context";
-import { addToHistory, type HistoryEntry } from "@/lib/search-history";
+import { addToHistory, incrementStats, type HistoryEntry } from "@/lib/search-history";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
 import SearchModeSelector from "@/components/SearchModeSelector";
@@ -96,7 +96,9 @@ const Home = () => {
             query,
             mode: searchMode,
             title: response.result.title,
+            posterUrl: response.tmdb?.posterUrl,
           });
+          incrementStats(searchMode);
           setHistoryKey((k) => k + 1);
         }
       }
