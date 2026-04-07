@@ -4,17 +4,14 @@ import { join } from "path";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-const proModel = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 const flashModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 const isDev = process.env.NODE_ENV === "development";
-const PRO_DAILY_LIMIT = 25;
 const FLASH_DAILY_LIMIT = 500;
 const STATS_FILE = join(process.cwd(), ".ai-stats.json");
 
 type DayStats = {
   date: string;
-  proUsed: number;
   flashUsed: number;
 };
 
@@ -25,7 +22,7 @@ const readStats = (): DayStats => {
     const stats = JSON.parse(raw) as DayStats;
     if (stats.date === today) return stats;
   } catch {}
-  return { date: today, proUsed: 0, flashUsed: 0 };
+  return { date: today, flashUsed: 0 };
 };
 
 const writeStats = (stats: DayStats) => {
@@ -34,38 +31,18 @@ const writeStats = (stats: DayStats) => {
   } catch {}
 };
 
-export type ModelPreference = "auto" | "pro" | "flash";
-
 export const generateContent = async (
-  parts: { text: string }[],
-  preference: ModelPreference = "auto"
+  parts: { text: string }[]
 ): Promise<{ text: string; model: string }> => {
   const stats = readStats();
 
-  const usePro =
-    preference === "flash"
-      ? false
-      : preference === "pro" || stats.proUsed < PRO_DAILY_LIMIT;
-
-  if (usePro) {
-    try {
-      const result = await proModel.generateContent(parts);
-      stats.proUsed++;
-      writeStats(stats);
-      if (isDev) console.log(`[AI] gemini-2.5-pro (${PRO_DAILY_LIMIT - stats.proUsed} pro left today)`);
-      return { text: result.response.text(), model: "gemini-2.5-pro" };
-    } catch (e) {
-      if (isDev) console.warn("[AI] pro failed, fallback to flash:", e instanceof Error ? e.message : e);
-    }
-  }
-
-  // Flash with 1 retry on 503
+  // Retry once on 503
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const result = await flashModel.generateContent(parts);
       stats.flashUsed++;
       writeStats(stats);
-      if (isDev) console.log(`[AI] gemini-2.5-flash${preference === "flash" ? "" : " (fallback)"} (${PRO_DAILY_LIMIT - stats.proUsed} pro left today)`);
+      if (isDev) console.log(`[AI] gemini-2.5-flash (${FLASH_DAILY_LIMIT - stats.flashUsed} left today)`);
       return { text: result.response.text(), model: "gemini-2.5-flash" };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -78,14 +55,12 @@ export const generateContent = async (
     }
   }
 
-  throw new Error("All AI models failed");
+  throw new Error("AI model failed");
 };
 
 export const getModelStats = () => {
   const stats = readStats();
   return {
-    proUsed: stats.proUsed,
-    proLimit: PRO_DAILY_LIMIT,
     flashUsed: stats.flashUsed,
     flashLimit: FLASH_DAILY_LIMIT,
   };
