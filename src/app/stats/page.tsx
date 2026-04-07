@@ -53,8 +53,10 @@ const StatsPage = () => {
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
-      <TopNav />
-      <main className="flex-1 px-6 py-12 max-w-2xl mx-auto w-full">
+      <div className="fixed top-4 left-4 z-50">
+        <TopNav />
+      </div>
+      <main className="flex-1 px-6 pt-20 pb-12 max-w-2xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
