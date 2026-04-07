@@ -49,9 +49,13 @@ export const generateContent = async (
   }
 
   const result = await flashModel.generateContent(parts);
+  flashCallCount++;
   if (isDev) console.log(`[AI] gemini-2.5-flash${preference === "flash" ? "" : " (fallback)"} (${getProCallsRemaining()} pro left today)`);
   return { text: result.response.text(), model: "gemini-2.5-flash" };
 };
+
+let flashCallCount = 0;
+let flashResetDate = new Date().toDateString();
 
 export const getModelStats = () => {
   const today = new Date().toDateString();
@@ -59,5 +63,14 @@ export const getModelStats = () => {
     proCallCount = 0;
     proResetDate = today;
   }
-  return { proUsed: proCallCount, proLimit: PRO_DAILY_LIMIT };
+  if (today !== flashResetDate) {
+    flashCallCount = 0;
+    flashResetDate = today;
+  }
+  return {
+    proUsed: proCallCount,
+    proLimit: PRO_DAILY_LIMIT,
+    flashUsed: flashCallCount,
+    flashLimit: 500,
+  };
 };

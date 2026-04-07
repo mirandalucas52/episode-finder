@@ -294,7 +294,7 @@ const Home = () => {
       <Footer />
 
       {process.env.NODE_ENV === "development" && (
-        <DevModelSelector value={modelPref} onChange={setModelPref} />
+        <DevModelSelector value={modelPref} onChange={setModelPref} lastModel={aiModel} />
       )}
     </div>
   );
