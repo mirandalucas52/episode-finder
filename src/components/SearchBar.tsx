@@ -59,8 +59,11 @@ const SearchBar = ({ onSearch, isLoading, initialQuery }: SearchBarProps) => {
     }
   };
 
-  const hasSpeechRecognition = typeof window !== "undefined" &&
-    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  const [hasSpeechRecognition, setHasSpeechRecognition] = useState(false);
+
+  useEffect(() => {
+    setHasSpeechRecognition("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  }, []);
 
   const toggleVoice = useCallback(() => {
     if (isListening) {
