@@ -54,6 +54,12 @@ const translations: Record<Locale, Record<string, string>> = {
     "spoiler.reveal": "Cliquer pour révéler le résumé (Spoilers)",
 
     "loading.text": "Exploration de notre mémoire cinématographique...",
+    "loading.step1": "Analyse de votre description...",
+    "loading.step2": "Recherche dans notre base de données...",
+    "loading.step3": "Identification du contenu...",
+    "loading.step4": "Vérification de la correspondance...",
+    "loading.step5": "Récupération des informations...",
+    "loading.funFact": "Le saviez-vous ?",
 
     "share.button": "Partager",
     "share.text": "J'ai cherché : \"{query}\" — et j'ai trouvé : {title} !",
@@ -202,6 +208,12 @@ const translations: Record<Locale, Record<string, string>> = {
     "spoiler.reveal": "Click to reveal summary (Spoilers)",
 
     "loading.text": "Searching our cinematic memory...",
+    "loading.step1": "Analyzing your description...",
+    "loading.step2": "Searching our database...",
+    "loading.step3": "Identifying the content...",
+    "loading.step4": "Verifying the match...",
+    "loading.step5": "Fetching details...",
+    "loading.funFact": "Did you know?",
 
     "share.button": "Share",
     "share.text": "I searched: \"{query}\" — and found: {title}!",
@@ -350,6 +362,12 @@ const translations: Record<Locale, Record<string, string>> = {
     "spoiler.reveal": "Clic para revelar el resumen (Spoilers)",
 
     "loading.text": "Explorando nuestra memoria cinematográfica...",
+    "loading.step1": "Analizando tu descripción...",
+    "loading.step2": "Buscando en nuestra base de datos...",
+    "loading.step3": "Identificando el contenido...",
+    "loading.step4": "Verificando la coincidencia...",
+    "loading.step5": "Recuperando detalles...",
+    "loading.funFact": "¿Sabías que?",
 
     "share.button": "Compartir",
     "share.text": "Busqué: \"{query}\" — ¡y encontré: {title}!",
@@ -498,6 +516,12 @@ const translations: Record<Locale, Record<string, string>> = {
     "spoiler.reveal": "Clique para revelar o resumo (Spoilers)",
 
     "loading.text": "Explorando nossa memória cinematográfica...",
+    "loading.step1": "Analisando sua descrição...",
+    "loading.step2": "Pesquisando em nossa base de dados...",
+    "loading.step3": "Identificando o conteúdo...",
+    "loading.step4": "Verificando a correspondência...",
+    "loading.step5": "Buscando detalhes...",
+    "loading.funFact": "Você sabia?",
 
     "share.button": "Compartilhar",
     "share.text": "Pesquisei: \"{query}\" — e encontrei: {title}!",
