@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
-import { generateContent } from "@/lib/gemini";
+import { generateContent, getModelStats, type ModelPreference } from "@/lib/gemini";
 import { fetchTmdbData } from "@/lib/tmdb";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { SearchResult, SearchMode, TmdbData, SearchResponse } from "@/types";
@@ -168,15 +168,16 @@ const fetchCorrections = async (mode: SearchMode): Promise<string> => {
 const callAI = async (
   query: string,
   mode: SearchMode,
-  locale: string
+  locale: string,
+  modelPref: ModelPreference = "auto"
 ): Promise<{ result: SearchResult; model: string }> => {
   const corrections = await fetchCorrections(mode);
   const prompt = buildPrompt(mode, locale) + corrections;
 
-  const response = await generateContent([
-    { text: prompt },
-    { text: `"${query}"` },
-  ]);
+  const response = await generateContent(
+    [{ text: prompt }, { text: `"${query}"` }],
+    modelPref
+  );
 
   const cleaned = response.text.replace(/```json\n?|\n?```/g, "").trim();
 
@@ -186,7 +187,8 @@ const callAI = async (
 export const searchEpisode = async (
   query: string,
   mode: SearchMode = "episode",
-  locale: string = "fr"
+  locale: string = "fr",
+  modelPref: ModelPreference = "auto"
 ): Promise<SearchResponse> => {
   const trimmed = query.trim().replace(/\s+/g, " ").slice(0, 600);
 
@@ -225,7 +227,7 @@ export const searchEpisode = async (
       };
     }
 
-    const { result, model } = await callAI(trimmed, mode, locale);
+    const { result, model } = await callAI(trimmed, mode, locale, modelPref);
     const isDev = process.env.NODE_ENV === "development";
 
     let tmdbData: TmdbData | null = null;
@@ -307,4 +309,9 @@ export const submitFeedback = async (
   } catch {
     return { success: false };
   }
+};
+
+export const getAIModelStats = async () => {
+  if (process.env.NODE_ENV !== "development") return null;
+  return getModelStats();
 };

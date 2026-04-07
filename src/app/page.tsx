@@ -18,8 +18,10 @@ import SocialProof from "@/components/SocialProof";
 import ResultCard from "@/components/ResultCard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import QuotaExceededView from "@/components/QuotaExceededView";
+import DevModelSelector from "@/components/DevModelSelector";
 import Footer from "@/components/Footer";
 import { searchEpisode } from "@/server/actions";
+import type { ModelPreference } from "@/lib/gemini";
 import type { SearchResult, SearchMode, TmdbData, QuotaError, RateLimitError } from "@/types";
 
 const Home = () => {
@@ -34,6 +36,7 @@ const Home = () => {
   const [rateLimitError, setRateLimitError] = useState<RateLimitError | null>(null);
   const [cacheId, setCacheId] = useState<number | undefined>(undefined);
   const [aiModel, setAiModel] = useState<string | undefined>(undefined);
+  const [modelPref, setModelPref] = useState<ModelPreference>("auto");
   const [lastQuery, setLastQuery] = useState("");
   const [searchBarQuery, setSearchBarQuery] = useState<string | undefined>(undefined);
   const [historyKey, setHistoryKey] = useState(0);
@@ -63,7 +66,7 @@ const Home = () => {
       setLastQuery(query);
       lastQueryRef.current = query;
 
-      const response = await searchEpisode(query, searchMode, locale);
+      const response = await searchEpisode(query, searchMode, locale, modelPref);
 
       if (response.quotaError) {
         setQuotaError(response.quotaError);
@@ -289,6 +292,10 @@ const Home = () => {
       <HomeSeoContent />
 
       <Footer />
+
+      {process.env.NODE_ENV === "development" && (
+        <DevModelSelector value={modelPref} onChange={setModelPref} />
+      )}
     </div>
   );
 };
