@@ -1,10 +1,14 @@
 import type { SearchMode } from "@/types";
 
+import type { SearchResult, TmdbData } from "@/types";
+
 export type HistoryEntry = {
   query: string;
   mode: SearchMode;
   title: string;
   posterUrl?: string | null;
+  result?: SearchResult;
+  tmdb?: TmdbData | null;
   timestamp: number;
 };
 

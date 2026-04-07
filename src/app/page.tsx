@@ -97,6 +97,8 @@ const Home = () => {
             mode: searchMode,
             title: response.result.title,
             posterUrl: response.tmdb?.posterUrl,
+            result: response.result,
+            tmdb: response.tmdb,
           });
           incrementStats(searchMode);
           setHistoryKey((k) => k + 1);
@@ -126,6 +128,26 @@ const Home = () => {
   const handleHistorySelect = useCallback(
     (entry: HistoryEntry) => {
       setSearchBarQuery(entry.query);
+
+      // If we have the cached result, show it instantly
+      if (entry.result) {
+        setHasInteracted(true);
+        setResult(entry.result);
+        setTmdb(entry.tmdb || null);
+        setFromCache(true);
+        setLastQuery(entry.query);
+        setMode(entry.mode);
+        setError(null);
+        setQuotaError(null);
+        setRateLimitError(null);
+        setCacheId(undefined);
+        setPendingCache(undefined);
+        setTimeout(() => {
+          resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 300);
+        return;
+      }
+
       handleSearch(entry.query, entry.mode);
     },
     [handleSearch]
