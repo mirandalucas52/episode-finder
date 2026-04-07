@@ -44,11 +44,13 @@ const StatsPage = () => {
   const shareText = `${t("stats.shareText")} ${stats.totalSearches} ${t("stats.searches")}, ${stats.films} ${t("mode.film")}s, ${stats.series} ${t("mode.series")}, ${stats.episodes} ${t("mode.episode")}s — findmyepisode.com`;
 
   const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({ text: shareText });
-    } else {
-      await navigator.clipboard.writeText(shareText);
-    }
+    try {
+      if (navigator.share) {
+        await navigator.share({ text: shareText });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+      }
+    } catch {}
   };
 
   return (
