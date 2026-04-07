@@ -41,6 +41,7 @@ const Home = () => {
   const [historyKey, setHistoryKey] = useState(0);
   const [hasInteracted, setHasInteracted] = useState(false);
   const lastQueryRef = useRef("");
+  const resultRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -101,6 +102,10 @@ const Home = () => {
       }
 
       setIsLoading(false);
+
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 150);
     },
     [mode, locale]
   );
@@ -254,6 +259,7 @@ const Home = () => {
             )}
 
             {result && !isLoading && (
+              <div ref={resultRef} className="scroll-mt-4">
               <ResultCard
                 key="result"
                 result={result}
@@ -264,6 +270,7 @@ const Home = () => {
                 aiModel={aiModel}
                 pendingCache={pendingCache}
               />
+              </div>
             )}
           </AnimatePresence>
         </div>
