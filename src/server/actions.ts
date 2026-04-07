@@ -168,15 +168,24 @@ const fetchCorrections = async (mode: SearchMode): Promise<string> => {
 const callAI = async (
   query: string,
   mode: SearchMode,
-  locale: string
+  locale: string,
+  imageBase64?: string
 ): Promise<{ result: SearchResult; model: string }> => {
   const corrections = await fetchCorrections(mode);
   const prompt = buildPrompt(mode, locale) + corrections;
 
-  const response = await generateContent(
-    [{ text: prompt }, { text: `"${query}"` }]
-  );
+  const parts: ({ text: string } | { inlineData: { mimeType: string; data: string } })[] = [
+    { text: prompt },
+  ];
 
+  if (imageBase64) {
+    parts.push({ inlineData: { mimeType: "image/jpeg", data: imageBase64 } });
+    parts.push({ text: query ? `Additional context: "${query}"` : "Identify this scene." });
+  } else {
+    parts.push({ text: `"${query}"` });
+  }
+
+  const response = await generateContent(parts);
   const cleaned = response.text.replace(/```json\n?|\n?```/g, "").trim();
 
   return { result: JSON.parse(cleaned) as SearchResult, model: response.model };
@@ -185,11 +194,21 @@ const callAI = async (
 export const searchEpisode = async (
   query: string,
   mode: SearchMode = "episode",
-  locale: string = "fr"
+  locale: string = "fr",
+  imageBase64?: string
 ): Promise<SearchResponse> => {
   const trimmed = query.trim().replace(/\s+/g, " ").slice(0, 600);
 
-  if (!trimmed || trimmed.length < 10) {
+  if (!trimmed && !imageBase64) {
+    return {
+      result: null,
+      tmdb: null,
+      fromCache: false,
+      error: "Décrivez la scène avec au moins 10 caractères.",
+    };
+  }
+
+  if (!imageBase64 && trimmed.length < 10) {
     return {
       result: null,
       tmdb: null,
@@ -199,17 +218,20 @@ export const searchEpisode = async (
   }
 
   // Locale is part of the cache key to avoid cross-language pollution
-  const normalizedQuery = `${locale}::${normalizeQuery(trimmed)}`;
+  const normalizedQuery = `${locale}::${normalizeQuery(trimmed || "image-search")}`;
 
   try {
-    const cached = await searchCache(normalizedQuery, mode);
-    if (cached) {
-      return {
-        result: cached.result,
-        tmdb: cached.tmdb,
-        fromCache: true,
-        cacheId: cached.id,
-      };
+    // Skip cache for image searches (each image is unique)
+    if (!imageBase64) {
+      const cached = await searchCache(normalizedQuery, mode);
+      if (cached) {
+        return {
+          result: cached.result,
+          tmdb: cached.tmdb,
+          fromCache: true,
+          cacheId: cached.id,
+        };
+      }
     }
 
     // Rate limit only on fresh AI calls (not cache hits)
@@ -224,7 +246,7 @@ export const searchEpisode = async (
       };
     }
 
-    const { result, model } = await callAI(trimmed, mode, locale);
+    const { result, model } = await callAI(trimmed, mode, locale, imageBase64);
     const isDev = process.env.NODE_ENV === "development";
 
     let tmdbData: TmdbData | null = null;
