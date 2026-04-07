@@ -165,7 +165,7 @@ const fetchCorrections = async (mode: SearchMode): Promise<string> => {
   }
 };
 
-const callGemini = async (
+const callAI = async (
   query: string,
   mode: SearchMode,
   locale: string
@@ -226,7 +226,7 @@ export const searchEpisode = async (
       };
     }
 
-    const result = await callGemini(trimmed, mode, locale);
+    const result = await callAI(trimmed, mode, locale);
 
     let tmdbData: TmdbData | null = null;
     if (result.found) {
