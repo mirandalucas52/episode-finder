@@ -50,6 +50,14 @@ const Home = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (result && !isLoading) {
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 500);
+    }
+  }, [result, isLoading]);
+
   const MIN_LOADING_MS = 5000;
 
   const handleSearch = useCallback(
