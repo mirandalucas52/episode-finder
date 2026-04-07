@@ -77,10 +77,10 @@ const LoadingSkeleton = () => {
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="w-full max-w-2xl mx-auto"
     >
-      <div className="rounded-2xl bg-card border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)] p-8 md:p-10">
+      <div className="rounded-2xl bg-card border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)] px-7 py-6 md:px-8 md:py-7">
 
         {/* Progress bar */}
-        <div className="relative h-1 bg-stone/30 rounded-full overflow-hidden mb-8">
+        <div className="relative h-1 bg-stone/30 rounded-full overflow-hidden mb-5">
           <motion.div
             className="absolute inset-y-0 left-0 bg-accent rounded-full"
             initial={{ width: "0%" }}
@@ -90,7 +90,7 @@ const LoadingSkeleton = () => {
         </div>
 
         {/* Steps */}
-        <div className="space-y-3 mb-8">
+        <div className="space-y-2.5 mb-5">
           {STEPS.map((stepKey, i) => (
             <motion.div
               key={stepKey}
@@ -143,30 +143,12 @@ const LoadingSkeleton = () => {
           ))}
         </div>
 
-        {/* Skeleton preview */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="space-y-3 mb-8"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-20 h-28 rounded-lg shimmer shrink-0" />
-            <div className="flex-1 space-y-2 pt-1">
-              <div className="h-6 w-40 rounded-lg shimmer" />
-              <div className="h-4 w-24 rounded-md shimmer" />
-              <div className="h-4 w-full rounded-md shimmer mt-3" />
-              <div className="h-4 w-4/5 rounded-md shimmer" />
-            </div>
-          </div>
-        </motion.div>
-
         {/* Fun fact */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="pt-6 border-t border-stone/30"
+          className="pt-4 border-t border-stone/30"
         >
           <p className="text-[10px] text-accent/70 uppercase tracking-widest mb-1.5">
             {t("loading.funFact")}
