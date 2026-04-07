@@ -49,6 +49,8 @@ const Home = () => {
     }
   }, []);
 
+  const MIN_LOADING_MS = 5000;
+
   const handleSearch = useCallback(
     async (query: string, overrideMode?: SearchMode) => {
       const searchMode = overrideMode || mode;
@@ -65,7 +67,14 @@ const Home = () => {
       setLastQuery(query);
       lastQueryRef.current = query;
 
+      const startTime = Date.now();
       const response = await searchEpisode(query, searchMode, locale);
+
+      // Wait for loading animation to complete all steps
+      const elapsed = Date.now() - startTime;
+      if (elapsed < MIN_LOADING_MS) {
+        await new Promise((r) => setTimeout(r, MIN_LOADING_MS - elapsed));
+      }
 
       if (response.quotaError) {
         setQuotaError(response.quotaError);

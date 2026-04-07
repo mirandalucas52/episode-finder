@@ -61,10 +61,11 @@ const LoadingSkeleton = () => {
   }, [locale]);
 
   useEffect(() => {
-    const delays = [800, 1000, 1200, 1500];
-    if (step >= STEPS.length - 1) return;
+    // Total: 600+700+800+900+1000 = 4000ms, leaves ~1s for last step to show as done
+    const delays = [600, 700, 800, 900, 1000];
+    if (step >= STEPS.length) return;
 
-    const timer = setTimeout(() => setStep((s) => s + 1), delays[step] || 1000);
+    const timer = setTimeout(() => setStep((s) => s + 1), delays[step] || 800);
     return () => clearTimeout(timer);
   }, [step]);
 
@@ -83,7 +84,7 @@ const LoadingSkeleton = () => {
           <motion.div
             className="absolute inset-y-0 left-0 bg-accent rounded-full"
             initial={{ width: "0%" }}
-            animate={{ width: `${Math.min(((step + 1) / STEPS.length) * 100, 95)}%` }}
+            animate={{ width: `${Math.min((step / STEPS.length) * 100, 100)}%` }}
             transition={{ duration: 1.2, ease: "easeOut" }}
           />
         </div>
