@@ -105,7 +105,7 @@ const Home = () => {
 
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 150);
+      }, 600);
     },
     [mode, locale]
   );
