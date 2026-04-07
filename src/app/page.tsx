@@ -77,6 +77,13 @@ const Home = () => {
         await new Promise((r) => setTimeout(r, MIN_LOADING_MS - elapsed));
       }
 
+      // Step 1: stop loading (triggers skeleton exit animation)
+      setIsLoading(false);
+
+      // Step 2: wait for skeleton exit animation to complete
+      await new Promise((r) => setTimeout(r, 400));
+
+      // Step 3: set the result (triggers result card enter animation)
       if (response.quotaError) {
         setQuotaError(response.quotaError);
       } else if (response.rateLimitError) {
@@ -103,18 +110,16 @@ const Home = () => {
           incrementStats(searchMode);
           setHistoryKey((k) => k + 1);
         }
-      }
 
-      setIsLoading(false);
-
-      // Haptic feedback on mobile
-      if (navigator.vibrate && response.result?.found) {
-        navigator.vibrate(response.result.confidence === "high" ? [50, 30, 50] : [30]);
+        // Haptic feedback on mobile
+        if (navigator.vibrate && response.result?.found) {
+          navigator.vibrate(response.result.confidence === "high" ? [50, 30, 50] : [30]);
+        }
       }
 
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 600);
+      }, 500);
     },
     [mode, locale]
   );
