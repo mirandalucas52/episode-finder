@@ -253,8 +253,9 @@ export const searchEpisode = async (
     const message = error instanceof Error ? error.message : String(error);
     console.error("Search error:", message);
 
-    const isQuota = /429|403|quota|rate.?limit/i.test(message);
-    if (isQuota) {
+    const isQuota = /429|quota exhausted/i.test(message);
+    const isRateLimit = /403.*rate.?limit|rate.?limit.*403/i.test(message);
+    if (isQuota || isRateLimit) {
       return {
         result: null,
         tmdb: null,

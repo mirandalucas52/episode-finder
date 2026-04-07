@@ -59,11 +59,26 @@ export const generateContent = async (
     }
   }
 
-  const result = await flashModel.generateContent(parts);
-  stats.flashUsed++;
-  writeStats(stats);
-  if (isDev) console.log(`[AI] gemini-2.5-flash${preference === "flash" ? "" : " (fallback)"} (${PRO_DAILY_LIMIT - stats.proUsed} pro left today)`);
-  return { text: result.response.text(), model: "gemini-2.5-flash" };
+  // Flash with 1 retry on 503
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const result = await flashModel.generateContent(parts);
+      stats.flashUsed++;
+      writeStats(stats);
+      if (isDev) console.log(`[AI] gemini-2.5-flash${preference === "flash" ? "" : " (fallback)"} (${PRO_DAILY_LIMIT - stats.proUsed} pro left today)`);
+      return { text: result.response.text(), model: "gemini-2.5-flash" };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (attempt === 0 && /503|unavailable|overloaded/i.test(msg)) {
+        if (isDev) console.warn("[AI] flash 503, retrying in 2s...");
+        await new Promise((r) => setTimeout(r, 2000));
+        continue;
+      }
+      throw e;
+    }
+  }
+
+  throw new Error("All AI models failed");
 };
 
 export const getModelStats = () => {
