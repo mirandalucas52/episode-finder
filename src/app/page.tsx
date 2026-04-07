@@ -33,6 +33,7 @@ const Home = () => {
   const [quotaError, setQuotaError] = useState<QuotaError | null>(null);
   const [rateLimitError, setRateLimitError] = useState<RateLimitError | null>(null);
   const [cacheId, setCacheId] = useState<number | undefined>(undefined);
+  const [aiModel, setAiModel] = useState<string | undefined>(undefined);
   const [lastQuery, setLastQuery] = useState("");
   const [searchBarQuery, setSearchBarQuery] = useState<string | undefined>(undefined);
   const [historyKey, setHistoryKey] = useState(0);
@@ -75,6 +76,7 @@ const Home = () => {
         setTmdb(response.tmdb);
         setFromCache(response.fromCache);
         setCacheId(response.cacheId);
+        setAiModel(response.aiModel);
 
         if (response.result?.found) {
           addToHistory({
@@ -247,6 +249,7 @@ const Home = () => {
                 fromCache={fromCache}
                 query={lastQuery}
                 cacheId={cacheId}
+                aiModel={aiModel}
               />
             )}
           </AnimatePresence>

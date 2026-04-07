@@ -52,4 +52,5 @@ export type SearchResponse = {
   error?: string;
   quotaError?: QuotaError;
   rateLimitError?: RateLimitError;
+  aiModel?: string;
 };

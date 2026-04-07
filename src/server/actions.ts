@@ -169,18 +169,18 @@ const callAI = async (
   query: string,
   mode: SearchMode,
   locale: string
-): Promise<SearchResult> => {
+): Promise<{ result: SearchResult; model: string }> => {
   const corrections = await fetchCorrections(mode);
   const prompt = buildPrompt(mode, locale) + corrections;
 
-  const text = await generateContent([
+  const response = await generateContent([
     { text: prompt },
     { text: `"${query}"` },
   ]);
 
-  const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
+  const cleaned = response.text.replace(/```json\n?|\n?```/g, "").trim();
 
-  return JSON.parse(cleaned) as SearchResult;
+  return { result: JSON.parse(cleaned) as SearchResult, model: response.model };
 };
 
 export const searchEpisode = async (
@@ -225,7 +225,8 @@ export const searchEpisode = async (
       };
     }
 
-    const result = await callAI(trimmed, mode, locale);
+    const { result, model } = await callAI(trimmed, mode, locale);
+    const isDev = process.env.NODE_ENV === "development";
 
     let tmdbData: TmdbData | null = null;
     if (result.found) {
@@ -239,7 +240,13 @@ export const searchEpisode = async (
 
     const cacheId = await saveToCache(trimmed, normalizedQuery, mode, result, tmdbData);
 
-    return { result, tmdb: tmdbData, fromCache: false, cacheId: cacheId || undefined };
+    return {
+      result,
+      tmdb: tmdbData,
+      fromCache: false,
+      cacheId: cacheId || undefined,
+      aiModel: isDev ? model : undefined,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Search error:", message);

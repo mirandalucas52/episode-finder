@@ -18,6 +18,7 @@ type ResultCardProps = {
   fromCache: boolean;
   query: string;
   cacheId?: number;
+  aiModel?: string;
 };
 
 const EpisodeBadge = ({ season, episode }: { season: number; episode: number }) => (
@@ -33,7 +34,7 @@ const EpisodeBadge = ({ season, episode }: { season: number; episode: number }) 
   </motion.div>
 );
 
-const ResultCard = ({ result, tmdb, fromCache, query, cacheId }: ResultCardProps) => {
+const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel }: ResultCardProps) => {
   const { t } = useI18n();
 
   const confidenceLabels = {
@@ -225,6 +226,11 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId }: ResultCardProps
                   {fromCache && (
                     <p className="text-[11px] text-ink-subtle tracking-wide">
                       {t("result.cached")}
+                    </p>
+                  )}
+                  {aiModel && (
+                    <p className="text-[10px] text-ink-subtle/50 font-mono tracking-wide">
+                      {aiModel}
                     </p>
                   )}
                 </motion.div>
