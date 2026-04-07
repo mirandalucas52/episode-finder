@@ -61,103 +61,90 @@ const LoadingSkeleton = () => {
   }, [locale]);
 
   useEffect(() => {
-    // Total: 600+700+800+900+1000 = 4000ms, leaves ~1s for last step to show as done
     const delays = [600, 700, 800, 900, 1000];
     if (step >= STEPS.length) return;
-
     const timer = setTimeout(() => setStep((s) => s + 1), delays[step] || 800);
     return () => clearTimeout(timer);
   }, [step]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, y: -10 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-2xl mx-auto"
+      key="loading-content"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="rounded-2xl bg-card border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)] px-7 py-6 md:px-8 md:py-7">
-
-        {/* Progress bar */}
-        <div className="relative h-1 bg-stone/30 rounded-full overflow-hidden mb-5">
-          <motion.div
-            className="absolute inset-y-0 left-0 bg-accent rounded-full"
-            initial={{ width: "0%" }}
-            animate={{ width: `${Math.min((step / STEPS.length) * 100, 100)}%` }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-          />
-        </div>
-
-        {/* Steps */}
-        <div className="space-y-2.5 mb-5">
-          {STEPS.map((stepKey, i) => (
-            <motion.div
-              key={stepKey}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{
-                opacity: i <= step ? 1 : 0.3,
-                x: 0,
-              }}
-              transition={{ delay: i * 0.1, duration: 0.3 }}
-              className="flex items-center gap-3"
-            >
-              <div className="relative w-5 h-5 flex items-center justify-center shrink-0">
-                <AnimatePresence mode="wait">
-                  {i < step ? (
-                    <motion.svg
-                      key="check"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      className="text-emerald-500"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </motion.svg>
-                  ) : i === step ? (
-                    <motion.div
-                      key="spinner"
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                      className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full"
-                    />
-                  ) : (
-                    <div key="dot" className="w-2 h-2 rounded-full bg-stone/40" />
-                  )}
-                </AnimatePresence>
-              </div>
-              <span className={`text-sm transition-colors duration-300 ${
-                i < step ? "text-ink-muted line-through" :
-                i === step ? "text-ink font-medium" : "text-ink-subtle/50"
-              }`}>
-                {t(stepKey)}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Fun fact */}
+      {/* Progress bar */}
+      <div className="relative h-1 bg-stone/30 rounded-full overflow-hidden mb-5">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="pt-4 border-t border-stone/30"
-        >
-          <p className="text-[10px] text-accent/70 uppercase tracking-widest mb-1.5">
-            {t("loading.funFact")}
-          </p>
-          <p className="text-xs text-ink-subtle leading-relaxed italic">
-            {fact}
-          </p>
-        </motion.div>
+          className="absolute inset-y-0 left-0 bg-accent rounded-full"
+          initial={{ width: "0%" }}
+          animate={{ width: `${Math.min((step / STEPS.length) * 100, 100)}%` }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+        />
       </div>
+
+      {/* Steps */}
+      <div className="space-y-2.5 mb-5">
+        {STEPS.map((stepKey, i) => (
+          <motion.div
+            key={stepKey}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: i <= step ? 1 : 0.3, x: 0 }}
+            transition={{ delay: i * 0.1, duration: 0.3 }}
+            className="flex items-center gap-3"
+          >
+            <div className="relative w-5 h-5 flex items-center justify-center shrink-0">
+              <AnimatePresence mode="wait">
+                {i < step ? (
+                  <motion.svg
+                    key="check"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                    className="text-emerald-500"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </motion.svg>
+                ) : i === step ? (
+                  <motion.div
+                    key="spinner"
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                    className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full"
+                  />
+                ) : (
+                  <div key="dot" className="w-2 h-2 rounded-full bg-stone/40" />
+                )}
+              </AnimatePresence>
+            </div>
+            <span className={`text-sm transition-colors duration-300 ${
+              i < step ? "text-ink-muted line-through" :
+              i === step ? "text-ink font-medium" : "text-ink-subtle/50"
+            }`}>
+              {t(stepKey)}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Fun fact */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+        className="pt-4 border-t border-stone/30"
+      >
+        <p className="text-[10px] text-accent/70 uppercase tracking-widest mb-1.5">
+          {t("loading.funFact")}
+        </p>
+        <p className="text-xs text-ink-subtle leading-relaxed italic">
+          {fact}
+        </p>
+      </motion.div>
     </motion.div>
   );
 };

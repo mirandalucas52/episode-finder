@@ -53,14 +53,15 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel, pendingC
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.97 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-      className="w-full max-w-2xl mx-auto relative"
+      key="result-content"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="relative"
     >
       {result.found && result.confidence === "high" && <SuccessConfetti />}
-      <div className="rounded-2xl bg-card border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)]">
+      <div>
         {result.found ? (
           <>
             {tmdb?.stillUrl && isEpisode && (

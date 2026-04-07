@@ -77,13 +77,7 @@ const Home = () => {
         await new Promise((r) => setTimeout(r, MIN_LOADING_MS - elapsed));
       }
 
-      // Step 1: stop loading (triggers skeleton exit animation)
-      setIsLoading(false);
-
-      // Step 2: wait for skeleton exit animation to complete
-      await new Promise((r) => setTimeout(r, 400));
-
-      // Step 3: set the result (triggers result card enter animation)
+      // Set result first, then stop loading — shared card stays, content swaps
       if (response.quotaError) {
         setQuotaError(response.quotaError);
       } else if (response.rateLimitError) {
@@ -117,9 +111,7 @@ const Home = () => {
         }
       }
 
-      setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 500);
+      setIsLoading(false);
     },
     [mode, locale]
   );
@@ -270,8 +262,6 @@ const Home = () => {
               </motion.p>
             )}
 
-            {isLoading && <LoadingSkeleton key="loading" />}
-
             {quotaError && !isLoading && (
               <QuotaExceededView
                 key="quota"
@@ -291,26 +281,42 @@ const Home = () => {
                 <p className="text-sm text-ink-muted">{t("rateLimit.message")}</p>
               </motion.div>
             )}
-
-            {result && !isLoading && (
-              <div ref={resultRef} className="scroll-mt-4">
-              <ResultCard
-                key="result"
-                result={result}
-                tmdb={tmdb}
-                fromCache={fromCache}
-                query={lastQuery}
-                cacheId={cacheId}
-                aiModel={aiModel}
-                pendingCache={pendingCache}
-                onAlternativeSelect={(title) => {
-                  setSearchBarQuery(title);
-                  handleSearch(title);
-                }}
-              />
-              </div>
-            )}
           </AnimatePresence>
+
+          {/* Shared card: stays mounted, content swaps inside */}
+          {(isLoading || result) && !error && !quotaError && !rateLimitError && (
+            <motion.div
+              ref={resultRef}
+              initial={{ opacity: 0, y: 20, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full max-w-2xl mx-auto scroll-mt-4"
+            >
+              <div className="rounded-2xl bg-card border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)]">
+                <div className="px-7 py-6 md:px-8 md:py-7">
+                  <AnimatePresence mode="wait">
+                    {isLoading && <LoadingSkeleton key="loading" />}
+                    {!isLoading && result && (
+                      <ResultCard
+                        key="result"
+                        result={result}
+                        tmdb={tmdb}
+                        fromCache={fromCache}
+                        query={lastQuery}
+                        cacheId={cacheId}
+                        aiModel={aiModel}
+                        pendingCache={pendingCache}
+                        onAlternativeSelect={(title) => {
+                          setSearchBarQuery(title);
+                          handleSearch(title);
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {!result && !isLoading && !error && !quotaError && (
