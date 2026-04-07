@@ -61,10 +61,10 @@ const LoadingSkeleton = () => {
   }, [locale]);
 
   useEffect(() => {
-    const delays = [2000, 2500, 3000, 3500];
+    const delays = [800, 1000, 1200, 1500];
     if (step >= STEPS.length - 1) return;
 
-    const timer = setTimeout(() => setStep((s) => s + 1), delays[step] || 2500);
+    const timer = setTimeout(() => setStep((s) => s + 1), delays[step] || 1000);
     return () => clearTimeout(timer);
   }, [step]);
 
