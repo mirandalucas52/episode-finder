@@ -44,6 +44,12 @@ export type RateLimitError = {
   type: "rateLimit";
 };
 
+export type PendingCache = {
+  query: string;
+  normalizedQuery: string;
+  mode: SearchMode;
+};
+
 export type SearchResponse = {
   result: SearchResult | null;
   tmdb: TmdbData | null;
@@ -53,4 +59,5 @@ export type SearchResponse = {
   quotaError?: QuotaError;
   rateLimitError?: RateLimitError;
   aiModel?: string;
+  pendingCache?: PendingCache;
 };

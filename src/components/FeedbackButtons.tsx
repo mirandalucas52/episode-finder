@@ -5,25 +5,39 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n-context";
 import { submitFeedback } from "@/server/actions";
+import type { SearchResult, TmdbData } from "@/types";
 
 type FeedbackButtonsProps = {
-  cacheId: number;
   query: string;
   resultTitle: string;
   searchMode: string;
+  cacheId?: number;
+  pendingData?: {
+    normalizedQuery: string;
+    result: SearchResult;
+    tmdb: TmdbData | null;
+  };
 };
 
 const FeedbackButtons = ({
-  cacheId,
   query,
   resultTitle,
   searchMode,
+  cacheId,
+  pendingData,
 }: FeedbackButtonsProps) => {
   const { t } = useI18n();
   const [voted, setVoted] = useState<1 | -1 | null>(null);
   const [showCorrection, setShowCorrection] = useState(false);
   const [correctTitle, setCorrectTitle] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const toastStyle = {
+    background: "var(--cream)",
+    border: "1px solid var(--stone)",
+    color: "var(--ink)",
+    fontSize: "13px",
+  };
 
   const handleVote = async (vote: 1 | -1) => {
     if (voted || submitting) return;
@@ -35,19 +49,9 @@ const FeedbackButtons = ({
 
     setSubmitting(true);
     setVoted(vote);
-    const result = await submitFeedback(cacheId, query, vote);
-    if (!result.success) setVoted(null);
-    else {
-      toast(t("feedback.thanks"), {
-        duration: 2000,
-        style: {
-          background: "var(--cream)",
-          border: "1px solid var(--stone)",
-          color: "var(--ink)",
-          fontSize: "13px",
-        },
-      });
-    }
+    const res = await submitFeedback(1, query, searchMode, undefined, undefined, cacheId, pendingData);
+    if (!res.success) setVoted(null);
+    else toast(t("feedback.thanks"), { duration: 2000, style: toastStyle });
     setSubmitting(false);
   };
 
@@ -56,28 +60,12 @@ const FeedbackButtons = ({
     setVoted(-1);
     setShowCorrection(false);
 
-    const result = await submitFeedback(
-      cacheId,
-      query,
-      -1,
-      resultTitle,
-      correctTitle.trim() || undefined,
-      searchMode
-    );
-
-    if (!result.success) {
+    const res = await submitFeedback(-1, query, searchMode, resultTitle, correctTitle.trim() || undefined, cacheId);
+    if (!res.success) {
       setVoted(null);
       setShowCorrection(true);
     } else {
-      toast(t("feedback.correctionSaved"), {
-        duration: 3000,
-        style: {
-          background: "var(--cream)",
-          border: "1px solid var(--stone)",
-          color: "var(--ink)",
-          fontSize: "13px",
-        },
-      });
+      toast(t("feedback.correctionSaved"), { duration: 3000, style: toastStyle });
     }
     setSubmitting(false);
   };
@@ -87,17 +75,8 @@ const FeedbackButtons = ({
     setVoted(-1);
     setShowCorrection(false);
 
-    await submitFeedback(cacheId, query, -1, resultTitle, undefined, searchMode);
-
-    toast(t("feedback.thanks"), {
-      duration: 2000,
-      style: {
-        background: "var(--cream)",
-        border: "1px solid var(--stone)",
-        color: "var(--ink)",
-        fontSize: "13px",
-      },
-    });
+    await submitFeedback(-1, query, searchMode, resultTitle, undefined, cacheId);
+    toast(t("feedback.thanks"), { duration: 2000, style: toastStyle });
     setSubmitting(false);
   };
 

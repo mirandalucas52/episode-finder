@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useI18n } from "@/lib/i18n-context";
-import type { SearchResult, TmdbData } from "@/types";
+import type { SearchResult, TmdbData, PendingCache } from "@/types";
 import { buildResultUrl } from "@/lib/slug";
 import SpoilerReveal from "@/components/SpoilerReveal";
 import WatchProviders from "@/components/WatchProviders";
@@ -19,6 +19,7 @@ type ResultCardProps = {
   query: string;
   cacheId?: number;
   aiModel?: string;
+  pendingCache?: PendingCache;
 };
 
 const EpisodeBadge = ({ season, episode }: { season: number; episode: number }) => (
@@ -34,7 +35,7 @@ const EpisodeBadge = ({ season, episode }: { season: number; episode: number }) 
   </motion.div>
 );
 
-const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel }: ResultCardProps) => {
+const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel, pendingCache }: ResultCardProps) => {
   const { t } = useI18n();
 
   const confidenceLabels = {
@@ -50,8 +51,9 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel }: Result
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 30, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.97 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
       className="w-full max-w-2xl mx-auto"
     >
@@ -215,14 +217,17 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel }: Result
                     title={result.title}
                     resultUrl={cacheId ? buildResultUrl(result, cacheId) : undefined}
                   />
-                  {cacheId && (
-                    <FeedbackButtons
-                      cacheId={cacheId}
-                      query={query}
-                      resultTitle={result.title}
-                      searchMode={result.resultType}
-                    />
-                  )}
+                  <FeedbackButtons
+                    query={query}
+                    resultTitle={result.title}
+                    searchMode={result.resultType}
+                    cacheId={cacheId}
+                    pendingData={pendingCache ? {
+                      normalizedQuery: pendingCache.normalizedQuery,
+                      result,
+                      tmdb,
+                    } : undefined}
+                  />
                   {fromCache && (
                     <p className="text-[11px] text-ink-subtle tracking-wide">
                       {t("result.cached")}

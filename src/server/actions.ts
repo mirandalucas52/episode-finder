@@ -23,12 +23,14 @@ const searchCache = async (
   mode: SearchMode
 ): Promise<{ result: SearchResult; tmdb: TmdbData | null; id: number } | null> => {
   try {
-    // 1. Exact match (same query + same mode)
+    // Only serve verified (thumbs-up) results from cache
+    // 1. Exact match (same query + same mode + verified)
     const { data: exact } = await supabase
       .from("search_cache")
       .select("id, result, tmdb_data")
       .eq("normalized_query", normalizedQuery)
       .eq("search_mode", mode)
+      .eq("verified", true)
       .maybeSingle();
 
     if (exact?.result) {
@@ -40,7 +42,7 @@ const searchCache = async (
       };
     }
 
-    // 2. Fuzzy match (similar query, same mode)
+    // 2. Fuzzy match (similar query, same mode, verified only)
     const { data: fuzzy, error } = await supabase.rpc("match_similar_query", {
       search_query: normalizedQuery,
       query_mode: mode,
@@ -51,6 +53,9 @@ const searchCache = async (
     if (error || !fuzzy || fuzzy.length === 0) return null;
 
     const match = fuzzy[0];
+
+    // Only serve verified fuzzy results
+    if (!match.verified) return null;
 
     // Detect query modification: if the queries share most words but the user
     // added OR removed at least 3 words, they're refining → skip cache
@@ -117,7 +122,7 @@ const getLangInstruction = (locale: string): string => {
   return `LANG:${lang}. All text values in ${lang}. Keep titles in ORIGINAL form (never translate/invent titles).`;
 };
 
-const SHARED_RULES = `Rules: JSON only, no markdown. Be generous: prefer low-confidence match over found=false. Always 2-4 alternatives when not high confidence (even if found=false). Cover all cinema: mainstream, indie, foreign, anime, Soviet, Bollywood, cult, silent, puppet, stop-motion.`;
+const SHARED_RULES = `Rules: JSON only, no markdown/backticks. Prefer low-confidence match over found=false. Always 2-4 alternatives when not high confidence (even if found=false). Cover ALL cinema: mainstream, indie, foreign, anime, Soviet, Bollywood, cult, silent, puppet, stop-motion. Think step by step: 1) identify key details (characters, setting, era, genre), 2) match against your knowledge, 3) verify match fits ALL described details before answering.`;
 
 const buildPrompt = (mode: SearchMode, locale: string): string => {
   const lang = getLangInstruction(locale);
@@ -224,8 +229,18 @@ export const searchEpisode = async (
       };
     }
 
-    const { result, model } = await callAI(trimmed, mode, locale);
+    let { result, model } = await callAI(trimmed, mode, locale);
     const isDev = process.env.NODE_ENV === "development";
+
+    // Auto-retry with reformulated query if confidence is low
+    if (result.found && result.confidence === "low") {
+      const retryQuery = `Be more specific. The user described: "${trimmed}". Your first guess was "${result.title}" but with low confidence. Re-analyze and try harder to find the exact match. If "${result.title}" is truly the best match, confirm it with higher confidence.`;
+      const retry = await callAI(retryQuery, mode, locale);
+      if (retry.result.found && retry.result.confidence !== "low") {
+        result = retry.result;
+        model = retry.model;
+      }
+    }
 
     let tmdbData: TmdbData | null = null;
     if (result.found) {
@@ -237,14 +252,17 @@ export const searchEpisode = async (
       );
     }
 
-    const cacheId = await saveToCache(trimmed, normalizedQuery, mode, result, tmdbData);
-
+    // Don't cache yet — wait for user thumbs up
     return {
       result,
       tmdb: tmdbData,
       fromCache: false,
-      cacheId: cacheId || undefined,
       aiModel: isDev ? model : undefined,
+      pendingCache: {
+        query: trimmed,
+        normalizedQuery,
+        mode,
+      },
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -271,35 +289,63 @@ export const searchEpisode = async (
 };
 
 export const submitFeedback = async (
-  cacheId: number,
-  query: string,
   vote: 1 | -1,
+  query: string,
+  searchMode: string,
   wrongTitle?: string,
   correctTitle?: string,
-  searchMode?: string
-): Promise<{ success: boolean }> => {
+  cacheId?: number,
+  pendingData?: {
+    normalizedQuery: string;
+    result: SearchResult;
+    tmdb: TmdbData | null;
+  }
+): Promise<{ success: boolean; cacheId?: number }> => {
   try {
-    if (vote === -1) {
-      // Delete the bad cache entry FIRST (cascades feedback FK)
-      await supabase.from("search_cache").delete().eq("id", cacheId);
+    if (vote === 1 && pendingData) {
+      // Thumbs up → save to cache as verified
+      const { data } = await supabase
+        .from("search_cache")
+        .upsert(
+          {
+            original_query: query.trim(),
+            normalized_query: pendingData.normalizedQuery,
+            search_mode: searchMode,
+            result: pendingData.result,
+            tmdb_data: pendingData.tmdb,
+            verified: true,
+            created_at: new Date().toISOString(),
+          },
+          { onConflict: "normalized_query,search_mode" }
+        )
+        .select("id")
+        .single();
 
-      // THEN insert correction WITHOUT cache_id (entry is gone)
+      const newCacheId = data?.id || null;
+
+      await supabase.from("result_feedback").insert({
+        cache_id: newCacheId,
+        query: query.trim(),
+        vote,
+        search_mode: searchMode,
+      });
+
+      return { success: true, cacheId: newCacheId || undefined };
+    }
+
+    if (vote === -1) {
+      // Delete from cache if it exists
+      if (cacheId) {
+        await supabase.from("search_cache").delete().eq("id", cacheId);
+      }
+
       await supabase.from("result_feedback").insert({
         cache_id: null,
         query: query.trim(),
         vote,
         wrong_title: wrongTitle || null,
         correct_title: correctTitle || null,
-        search_mode: searchMode || null,
-      });
-    } else {
-      await supabase.from("result_feedback").insert({
-        cache_id: cacheId,
-        query: query.trim(),
-        vote,
-        wrong_title: null,
-        correct_title: null,
-        search_mode: searchMode || null,
+        search_mode: searchMode,
       });
     }
 

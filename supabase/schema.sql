@@ -10,6 +10,7 @@ create table search_cache (
   result jsonb not null,
   tmdb_data jsonb,
   hit_count integer not null default 1,
+  verified boolean not null default false,
   created_at timestamptz not null default now(),
   unique (normalized_query, search_mode)
 );
@@ -39,6 +40,7 @@ returns table (
   normalized_query text,
   result jsonb,
   tmdb_data jsonb,
+  verified boolean,
   similarity float
 )
 language sql stable
@@ -49,6 +51,7 @@ as $$
     sc.normalized_query,
     sc.result,
     sc.tmdb_data,
+    sc.verified,
     similarity(sc.normalized_query, search_query)::float as similarity
   from search_cache sc
   where sc.search_mode = query_mode

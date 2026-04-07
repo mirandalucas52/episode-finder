@@ -21,7 +21,7 @@ import QuotaExceededView from "@/components/QuotaExceededView";
 import DevModelSelector from "@/components/DevModelSelector";
 import Footer from "@/components/Footer";
 import { searchEpisode } from "@/server/actions";
-import type { SearchResult, SearchMode, TmdbData, QuotaError, RateLimitError } from "@/types";
+import type { SearchResult, SearchMode, TmdbData, QuotaError, RateLimitError, PendingCache } from "@/types";
 
 const Home = () => {
   const { t, locale } = useI18n();
@@ -35,6 +35,7 @@ const Home = () => {
   const [rateLimitError, setRateLimitError] = useState<RateLimitError | null>(null);
   const [cacheId, setCacheId] = useState<number | undefined>(undefined);
   const [aiModel, setAiModel] = useState<string | undefined>(undefined);
+  const [pendingCache, setPendingCache] = useState<PendingCache | undefined>(undefined);
   const [lastQuery, setLastQuery] = useState("");
   const [searchBarQuery, setSearchBarQuery] = useState<string | undefined>(undefined);
   const [historyKey, setHistoryKey] = useState(0);
@@ -78,6 +79,7 @@ const Home = () => {
         setFromCache(response.fromCache);
         setCacheId(response.cacheId);
         setAiModel(response.aiModel);
+        setPendingCache(response.pendingCache);
 
         if (response.result?.found) {
           addToHistory({
@@ -251,6 +253,7 @@ const Home = () => {
                 query={lastQuery}
                 cacheId={cacheId}
                 aiModel={aiModel}
+                pendingCache={pendingCache}
               />
             )}
           </AnimatePresence>
