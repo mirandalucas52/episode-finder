@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
-import { geminiModel } from "@/lib/gemini";
+import { generateContent } from "@/lib/gemini";
 import { fetchTmdbData } from "@/lib/tmdb";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { SearchResult, SearchMode, TmdbData, SearchResponse } from "@/types";
@@ -173,12 +173,11 @@ const callAI = async (
   const corrections = await fetchCorrections(mode);
   const prompt = buildPrompt(mode, locale) + corrections;
 
-  const result = await geminiModel.generateContent([
+  const text = await generateContent([
     { text: prompt },
     { text: `"${query}"` },
   ]);
 
-  const text = result.response.text();
   const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
 
   return JSON.parse(cleaned) as SearchResult;
