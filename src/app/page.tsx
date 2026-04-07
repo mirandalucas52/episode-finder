@@ -190,13 +190,13 @@ const Home = () => {
         </button>
       )}
 
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3
+                      bg-cream/80 backdrop-blur-md border-b border-stone/20">
         <TopNav />
-      </div>
-
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        <ThemeToggle />
-        <LocaleSwitcher />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LocaleSwitcher />
+        </div>
       </div>
 
       <main className="flex flex-col items-center w-full flex-1 px-5 md:px-8 min-h-screen">

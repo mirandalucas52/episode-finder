@@ -55,7 +55,8 @@ const StatsPage = () => {
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center px-4 py-3
+                      bg-cream/80 backdrop-blur-md border-b border-stone/20">
         <TopNav />
       </div>
       <main className="flex-1 px-6 pt-20 pb-12 max-w-2xl mx-auto w-full">
