@@ -49,7 +49,7 @@ const Home = () => {
   }, []);
 
   const handleSearch = useCallback(
-    async (query: string, overrideMode?: SearchMode, imageBase64?: string) => {
+    async (query: string, overrideMode?: SearchMode) => {
       const searchMode = overrideMode || mode;
       if (overrideMode) setMode(overrideMode);
 
@@ -64,7 +64,7 @@ const Home = () => {
       setLastQuery(query);
       lastQueryRef.current = query;
 
-      const response = await searchEpisode(query, searchMode, locale, imageBase64);
+      const response = await searchEpisode(query, searchMode, locale);
 
       if (response.quotaError) {
         setQuotaError(response.quotaError);
@@ -177,7 +177,7 @@ const Home = () => {
         </div>
 
         <SearchBar
-          onSearch={(q, img) => handleSearch(q, undefined, img)}
+          onSearch={(q) => handleSearch(q)}
           isLoading={isLoading}
           initialQuery={searchBarQuery}
         />

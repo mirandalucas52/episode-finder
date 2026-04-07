@@ -31,10 +31,8 @@ const writeStats = (stats: DayStats) => {
   } catch {}
 };
 
-type Part = { text: string } | { inlineData: { mimeType: string; data: string } };
-
 export const generateContent = async (
-  parts: Part[]
+  parts: { text: string }[]
 ): Promise<{ text: string; model: string }> => {
   const stats = readStats();
 

@@ -17,9 +17,6 @@ const translations: Record<Locale, Record<string, string>> = {
     "site.heading2": "Découvrez.",
 
     "search.placeholder": "Décrivez la scène dont vous vous souvenez...",
-    "search.imagePlaceholder": "Ajoutez du contexte à votre image (optionnel)...",
-    "search.imageAttached": "Image jointe — prête à analyser",
-    "search.uploadImage": "Joindre un screenshot",
     "search.charsRemaining": "caractères restants",
     "search.hint": "Entrée pour rechercher",
     "search.loading": "Recherche...",
@@ -168,9 +165,6 @@ const translations: Record<Locale, Record<string, string>> = {
     "site.heading2": "Discover.",
 
     "search.placeholder": "Describe the scene you remember...",
-    "search.imagePlaceholder": "Add context to your image (optional)...",
-    "search.imageAttached": "Image attached — ready to analyze",
-    "search.uploadImage": "Attach a screenshot",
     "search.charsRemaining": "characters remaining",
     "search.hint": "Enter to search",
     "search.loading": "Searching...",
@@ -319,9 +313,6 @@ const translations: Record<Locale, Record<string, string>> = {
     "site.heading2": "Descubre.",
 
     "search.placeholder": "Describe la escena que recuerdas...",
-    "search.imagePlaceholder": "Agrega contexto a tu imagen (opcional)...",
-    "search.imageAttached": "Imagen adjunta — lista para analizar",
-    "search.uploadImage": "Adjuntar captura de pantalla",
     "search.charsRemaining": "caracteres restantes",
     "search.hint": "Enter para buscar",
     "search.loading": "Buscando...",
@@ -470,9 +461,6 @@ const translations: Record<Locale, Record<string, string>> = {
     "site.heading2": "Descubra.",
 
     "search.placeholder": "Descreva a cena que você lembra...",
-    "search.imagePlaceholder": "Adicione contexto à sua imagem (opcional)...",
-    "search.imageAttached": "Imagem anexada — pronta para analisar",
-    "search.uploadImage": "Anexar captura de tela",
     "search.charsRemaining": "caracteres restantes",
     "search.hint": "Enter para pesquisar",
     "search.loading": "Pesquisando...",
