@@ -17,6 +17,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "site.heading2": "Découvrez.",
 
     "search.placeholder": "Décrivez la scène dont vous vous souvenez...",
+    "search.voice": "Recherche vocale",
+    "search.listening": "Parlez, je vous écoute...",
     "search.charsRemaining": "caractères restants",
     "search.hint": "Entrée pour rechercher",
     "search.loading": "Recherche...",
@@ -171,6 +173,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "site.heading2": "Discover.",
 
     "search.placeholder": "Describe the scene you remember...",
+    "search.voice": "Voice search",
+    "search.listening": "Speak, I'm listening...",
     "search.charsRemaining": "characters remaining",
     "search.hint": "Enter to search",
     "search.loading": "Searching...",
@@ -325,6 +329,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "site.heading2": "Descubre.",
 
     "search.placeholder": "Describe la escena que recuerdas...",
+    "search.voice": "Búsqueda por voz",
+    "search.listening": "Habla, te escucho...",
     "search.charsRemaining": "caracteres restantes",
     "search.hint": "Enter para buscar",
     "search.loading": "Buscando...",
@@ -479,6 +485,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "site.heading2": "Descubra.",
 
     "search.placeholder": "Descreva a cena que você lembra...",
+    "search.voice": "Pesquisa por voz",
+    "search.listening": "Fale, estou ouvindo...",
     "search.charsRemaining": "caracteres restantes",
     "search.hint": "Enter para pesquisar",
     "search.loading": "Pesquisando...",

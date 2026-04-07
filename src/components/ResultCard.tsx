@@ -11,6 +11,7 @@ import ShareButton from "@/components/ShareButton";
 import FeedbackButtons from "@/components/FeedbackButtons";
 import DidYouMean from "@/components/DidYouMean";
 import TrailerEmbed from "@/components/TrailerEmbed";
+import SuccessConfetti from "@/components/SuccessConfetti";
 
 type ResultCardProps = {
   result: SearchResult;
@@ -20,6 +21,7 @@ type ResultCardProps = {
   cacheId?: number;
   aiModel?: string;
   pendingCache?: PendingCache;
+  onAlternativeSelect?: (title: string) => void;
 };
 
 const EpisodeBadge = ({ season, episode }: { season: number; episode: number }) => (
@@ -35,7 +37,7 @@ const EpisodeBadge = ({ season, episode }: { season: number; episode: number }) 
   </motion.div>
 );
 
-const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel, pendingCache }: ResultCardProps) => {
+const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel, pendingCache, onAlternativeSelect }: ResultCardProps) => {
   const { t } = useI18n();
 
   const confidenceLabels = {
@@ -55,8 +57,9 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel, pendingC
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.97 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-      className="w-full max-w-2xl mx-auto"
+      className="w-full max-w-2xl mx-auto relative"
     >
+      {result.found && result.confidence === "high" && <SuccessConfetti />}
       <div className="rounded-2xl bg-card border border-stone/60 overflow-hidden shadow-[0_2px_16px_rgba(26,25,23,0.04)]">
         {result.found ? (
           <>
@@ -199,7 +202,7 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel, pendingC
                 )}
 
                 {result.alternatives && result.alternatives.length > 0 && (
-                  <DidYouMean alternatives={result.alternatives} />
+                  <DidYouMean alternatives={result.alternatives} onSelect={onAlternativeSelect} />
                 )}
 
                 {tmdb && tmdb.watchProviders.length > 0 && (
@@ -259,7 +262,7 @@ const ResultCard = ({ result, tmdb, fromCache, query, cacheId, aiModel, pendingC
 
             {result.alternatives && result.alternatives.length > 0 && (
               <div className="mt-6">
-                <DidYouMean alternatives={result.alternatives} />
+                <DidYouMean alternatives={result.alternatives} onSelect={onAlternativeSelect} />
               </div>
             )}
           </div>

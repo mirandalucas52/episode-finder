@@ -103,6 +103,11 @@ const Home = () => {
 
       setIsLoading(false);
 
+      // Haptic feedback on mobile
+      if (navigator.vibrate && response.result?.found) {
+        navigator.vibrate(response.result.confidence === "high" ? [50, 30, 50] : [30]);
+      }
+
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 600);
@@ -269,6 +274,10 @@ const Home = () => {
                 cacheId={cacheId}
                 aiModel={aiModel}
                 pendingCache={pendingCache}
+                onAlternativeSelect={(title) => {
+                  setSearchBarQuery(title);
+                  handleSearch(title);
+                }}
               />
               </div>
             )}
