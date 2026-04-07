@@ -180,7 +180,12 @@ const callAI = async (
 
   if (imageBase64) {
     parts.push({ inlineData: { mimeType: "image/jpeg", data: imageBase64 } });
-    parts.push({ text: query ? `Additional context: "${query}"` : "Identify this scene." });
+    const imageInstruction = mode === "episode"
+      ? "Identify the EXACT EPISODE from this screenshot. Analyze characters, costumes, setting, lighting, props, on-screen text, and any visual detail to pinpoint the specific season and episode number. Do NOT just identify the series — find the exact episode."
+      : mode === "series"
+        ? "Identify the TV SERIES from this screenshot."
+        : "Identify the MOVIE from this screenshot.";
+    parts.push({ text: query ? `${imageInstruction}\nAdditional context: "${query}"` : imageInstruction });
   } else {
     parts.push({ text: `"${query}"` });
   }
