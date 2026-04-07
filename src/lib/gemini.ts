@@ -1,4 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -6,18 +8,30 @@ const proModel = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 const flashModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 const isDev = process.env.NODE_ENV === "development";
-
 const PRO_DAILY_LIMIT = 25;
-let proCallCount = 0;
-let proResetDate = new Date().toDateString();
+const FLASH_DAILY_LIMIT = 500;
+const STATS_FILE = join(process.cwd(), ".ai-stats.json");
 
-const getProCallsRemaining = (): number => {
-  const today = new Date().toDateString();
-  if (today !== proResetDate) {
-    proCallCount = 0;
-    proResetDate = today;
-  }
-  return PRO_DAILY_LIMIT - proCallCount;
+type DayStats = {
+  date: string;
+  proUsed: number;
+  flashUsed: number;
+};
+
+const readStats = (): DayStats => {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const raw = readFileSync(STATS_FILE, "utf-8");
+    const stats = JSON.parse(raw) as DayStats;
+    if (stats.date === today) return stats;
+  } catch {}
+  return { date: today, proUsed: 0, flashUsed: 0 };
+};
+
+const writeStats = (stats: DayStats) => {
+  try {
+    writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2));
+  } catch {}
 };
 
 export type ModelPreference = "auto" | "pro" | "flash";
@@ -26,22 +40,19 @@ export const generateContent = async (
   parts: { text: string }[],
   preference: ModelPreference = "auto"
 ): Promise<{ text: string; model: string }> => {
-  const today = new Date().toDateString();
-  if (today !== proResetDate) {
-    proCallCount = 0;
-    proResetDate = today;
-  }
+  const stats = readStats();
 
   const usePro =
     preference === "flash"
       ? false
-      : preference === "pro" || proCallCount < PRO_DAILY_LIMIT;
+      : preference === "pro" || stats.proUsed < PRO_DAILY_LIMIT;
 
   if (usePro) {
     try {
       const result = await proModel.generateContent(parts);
-      proCallCount++;
-      if (isDev) console.log(`[AI] gemini-2.5-pro (${getProCallsRemaining()} pro left today)`);
+      stats.proUsed++;
+      writeStats(stats);
+      if (isDev) console.log(`[AI] gemini-2.5-pro (${PRO_DAILY_LIMIT - stats.proUsed} pro left today)`);
       return { text: result.response.text(), model: "gemini-2.5-pro" };
     } catch (e) {
       if (isDev) console.warn("[AI] pro failed, fallback to flash:", e instanceof Error ? e.message : e);
@@ -49,28 +60,18 @@ export const generateContent = async (
   }
 
   const result = await flashModel.generateContent(parts);
-  flashCallCount++;
-  if (isDev) console.log(`[AI] gemini-2.5-flash${preference === "flash" ? "" : " (fallback)"} (${getProCallsRemaining()} pro left today)`);
+  stats.flashUsed++;
+  writeStats(stats);
+  if (isDev) console.log(`[AI] gemini-2.5-flash${preference === "flash" ? "" : " (fallback)"} (${PRO_DAILY_LIMIT - stats.proUsed} pro left today)`);
   return { text: result.response.text(), model: "gemini-2.5-flash" };
 };
 
-let flashCallCount = 0;
-let flashResetDate = new Date().toDateString();
-
 export const getModelStats = () => {
-  const today = new Date().toDateString();
-  if (today !== proResetDate) {
-    proCallCount = 0;
-    proResetDate = today;
-  }
-  if (today !== flashResetDate) {
-    flashCallCount = 0;
-    flashResetDate = today;
-  }
+  const stats = readStats();
   return {
-    proUsed: proCallCount,
+    proUsed: stats.proUsed,
     proLimit: PRO_DAILY_LIMIT,
-    flashUsed: flashCallCount,
-    flashLimit: 500,
+    flashUsed: stats.flashUsed,
+    flashLimit: FLASH_DAILY_LIMIT,
   };
 };
