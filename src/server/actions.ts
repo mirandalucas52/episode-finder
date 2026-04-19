@@ -88,7 +88,7 @@ const saveToCache = async (
   tmdbData: TmdbData | null
 ): Promise<number | null> => {
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("search_cache")
       .upsert(
         {
@@ -103,9 +103,13 @@ const saveToCache = async (
       )
       .select("id")
       .single();
+    if (error) {
+      console.error("Supabase cache upsert error:", error.message, error.details);
+      return null;
+    }
     return data?.id || null;
-  } catch {
-    console.error("Failed to save to cache");
+  } catch (err) {
+    console.error("Failed to save to cache:", err);
     return null;
   }
 };
