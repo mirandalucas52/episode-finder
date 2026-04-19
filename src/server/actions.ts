@@ -308,7 +308,7 @@ export const submitFeedback = async (
   try {
     if (vote === 1 && pendingData) {
       // Thumbs up → save to cache as verified
-      const { data } = await supabase
+      const { data, error: upsertError } = await supabase
         .from("search_cache")
         .upsert(
           {
@@ -324,6 +324,11 @@ export const submitFeedback = async (
         )
         .select("id")
         .single();
+
+      if (upsertError) {
+        console.error("Supabase feedback upsert error:", upsertError.message, upsertError.details);
+        return { success: false };
+      }
 
       const newCacheId = data?.id || null;
 
